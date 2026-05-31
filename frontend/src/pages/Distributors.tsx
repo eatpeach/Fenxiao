@@ -80,7 +80,9 @@ function CreateDistributor({ onDone }: { onDone: () => void }) {
     <ModalForm
       title="新增分销商"
       trigger={<Button type="primary" icon={<PlusOutlined />}>新增分销商</Button>}
-      width={420}
+      width={560}
+      grid
+      rowProps={{ gutter: 16 }}
       onFinish={async (v) => {
         const res = await api.post('/api/distributors', v);
         if (res.success) { message.success('已新增'); onDone(); return true; }
@@ -88,12 +90,12 @@ function CreateDistributor({ onDone }: { onDone: () => void }) {
         return false;
       }}
     >
-      <ProFormText name="username" label="用户名" rules={[{ required: true }]} />
-      <ProFormText.Password name="password" label="密码" rules={[{ required: true }]} />
-      <ProFormText name="name" label="姓名" />
-      <ProFormText name="phone" label="手机" />
-      <ProFormSelect name="level_id" label="分销等级" request={levelOptions} />
-      <ProFormSelect name="parent_id" label="推广上级" request={parentOptions} showSearch />
+      <ProFormText name="username" label="用户名" colProps={{ span: 12 }} rules={[{ required: true }]} />
+      <ProFormText.Password name="password" label="密码" colProps={{ span: 12 }} rules={[{ required: true }]} />
+      <ProFormText name="name" label="姓名" colProps={{ span: 12 }} />
+      <ProFormText name="phone" label="手机" colProps={{ span: 12 }} />
+      <ProFormSelect name="level_id" label="分销等级" colProps={{ span: 12 }} request={levelOptions} />
+      <ProFormSelect name="parent_id" label="推广上级" colProps={{ span: 12 }} request={parentOptions} showSearch />
     </ModalForm>
   );
 }
@@ -103,7 +105,9 @@ function EditDistributor({ record, onDone }: { record: Distributor; onDone: () =
     <ModalForm
       title="编辑分销商"
       trigger={<a>编辑</a>}
-      width={420}
+      width={560}
+      grid
+      rowProps={{ gutter: 16 }}
       initialValues={record}
       onFinish={async (v) => {
         const res = await api.put(`/api/distributors/${record.id}`, v);
@@ -112,16 +116,13 @@ function EditDistributor({ record, onDone }: { record: Distributor; onDone: () =
         return false;
       }}
     >
-      <ProFormText name="name" label="姓名" />
-      <ProFormText name="phone" label="手机" />
-      <ProFormText.Password name="password" label="重置密码" placeholder="留空则不修改" />
-      <ProFormSelect name="level_id" label="分销等级" request={levelOptions} />
-      <ProFormSelect name="parent_id" label="推广上级" request={parentOptions} showSearch />
-      <ProFormSelect
-        name="status"
-        label="状态"
-        options={[{ label: '启用', value: 1 }, { label: '停用', value: 0 }]}
-      />
+      <ProFormText name="name" label="姓名" colProps={{ span: 12 }} />
+      <ProFormText name="phone" label="手机" colProps={{ span: 12 }} />
+      <ProFormText.Password name="password" label="重置密码" colProps={{ span: 12 }} placeholder="留空则不修改" />
+      <ProFormSelect name="status" label="状态" colProps={{ span: 12 }}
+        options={[{ label: '启用', value: 1 }, { label: '停用', value: 0 }]} />
+      <ProFormSelect name="level_id" label="分销等级" colProps={{ span: 12 }} request={levelOptions} />
+      <ProFormSelect name="parent_id" label="推广上级" colProps={{ span: 12 }} request={parentOptions} showSearch />
     </ModalForm>
   );
 }

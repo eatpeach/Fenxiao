@@ -96,7 +96,11 @@ export default function Withdrawals() {
             }}
           >
             <ProFormSelect name="user_id" label="分销商" request={distributorOptions} showSearch rules={[{ required: true }]} />
-            <ProFormDigit name="amount" label="提现金额" min={1} rules={[{ required: true }]} />
+            <ProFormDigit name="amount" label="提现金额" min={1} rules={[{ required: true }]}
+              fieldProps={{
+                formatter: (v?: string | number) => (v != null && v !== '' ? `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''),
+                parser: (v?: string) => (v ? v.replace(/,/g, '') : '') as any,
+              }} />
             <ProFormText name="remark" label="备注" />
           </ModalForm>,
         ]}

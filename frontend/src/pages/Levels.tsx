@@ -68,11 +68,12 @@ function LevelForm({
   onSubmit: (v: any) => Promise<boolean>;
 }) {
   return (
-    <ModalForm title="分销商等级" trigger={trigger} initialValues={initialValues} onFinish={onSubmit} width={400}>
-      <ProFormText name="name" label="等级名称" rules={[{ required: true }]} />
-      <ProFormDigit name="commission_rate" label="佣金率(0~1)" min={0} max={1} fieldProps={{ step: 0.01 }} />
-      <ProFormDigit name="discount_rate" label="拿货折扣(0~1)" min={0} max={1} fieldProps={{ step: 0.01 }} />
-      <ProFormDigit name="sort" label="排序" min={0} />
+    <ModalForm title="分销商等级" trigger={trigger} initialValues={initialValues} onFinish={onSubmit}
+      width={480} grid rowProps={{ gutter: 16 }}>
+      <ProFormText name="name" label="等级名称" colProps={{ span: 24 }} rules={[{ required: true }]} />
+      <ProFormDigit name="commission_rate" label="佣金率(0~1)" colProps={{ span: 12 }} min={0} max={1} fieldProps={{ step: 0.01 }} />
+      <ProFormDigit name="discount_rate" label="拿货折扣(0~1)" colProps={{ span: 12 }} min={0} max={1} fieldProps={{ step: 0.01 }} />
+      <ProFormDigit name="sort" label="排序" colProps={{ span: 12 }} min={0} />
     </ModalForm>
   );
 }

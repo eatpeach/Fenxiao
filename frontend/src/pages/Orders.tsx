@@ -74,6 +74,8 @@ function CreateOrder({ onDone }: { onDone: () => void }) {
       title="新建订单"
       trigger={<Button type="primary" icon={<PlusOutlined />}>新建订单</Button>}
       width={560}
+      grid
+      rowProps={{ gutter: 16 }}
       onFinish={async (v) => {
         const res = await api.post('/api/orders', v);
         if (res.success) { message.success(`下单成功，合计 ${res.data?.total}`); onDone(); return true; }
@@ -81,16 +83,18 @@ function CreateOrder({ onDone }: { onDone: () => void }) {
         return false;
       }}
     >
-      <ProFormSelect name="user_id" label="分销商" request={distributorOptions} showSearch rules={[{ required: true }]} />
+      <ProFormSelect name="user_id" label="分销商" colProps={{ span: 12 }} request={distributorOptions} showSearch rules={[{ required: true }]} />
       <ProFormSelect
         name="currency"
         label="币种"
+        colProps={{ span: 12 }}
         initialValue="RP"
         options={[{ label: '印尼盾 Rp', value: 'RP' }, { label: '人民币 ¥', value: 'RMB' }]}
       />
       <ProFormList
         name="items"
         label="商品明细"
+        colProps={{ span: 24 }}
         creatorButtonProps={{ creatorButtonText: '添加商品' }}
         min={1}
         initialValue={[{}]}
@@ -98,7 +102,7 @@ function CreateOrder({ onDone }: { onDone: () => void }) {
         <ProFormSelect name="product_id" label="商品" request={productOptions} showSearch width="md" rules={[{ required: true }]} />
         <ProFormDigit name="qty" label="数量" min={1} initialValue={1} width="xs" />
       </ProFormList>
-      <ProFormText name="remark" label="备注" />
+      <ProFormText name="remark" label="备注" colProps={{ span: 24 }} />
     </ModalForm>
   );
 }
