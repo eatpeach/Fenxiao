@@ -84,9 +84,9 @@ export default function Products() {
       render: (_, r) => (r.price_rmb ? `¥${r.price_rmb}` : '-') },
     { title: '一盒价(Rp)', dataIndex: 'box_price_rp', width: 120, search: false,
       render: (_, r) => rp(r.box_price_rp) },
-    { title: '批量拿货价', dataIndex: 'bulk_price_rp', width: 120, search: false,
+    { title: '不含税成本', dataIndex: 'bulk_price_rp', width: 120, search: false,
       render: (_, r) => rp(r.bulk_price_rp) },
-    { title: '成本价', dataIndex: 'cost_price_rp', width: 120, search: false,
+    { title: '含税成本', dataIndex: 'cost_price_rp', width: 120, search: false,
       render: (_, r) => rp(r.cost_price_rp) },
     {
       title: '操作', valueType: 'option', width: 110, fixed: 'right',
@@ -165,8 +165,8 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
         <ProFormDigit name="box_price_rp" label="一盒价(Rp)" width="xs" min={0} />
       </ProForm.Group>
       <ProForm.Group>
-        <ProFormDigit name="bulk_price_rp" label="批量拿货价(Rp)" width="sm" min={0} />
-        <ProFormDigit name="cost_price_rp" label="成本价(Rp)" width="sm" min={0} />
+        <ProFormDigit name="bulk_price_rp" label="不含税成本(Rp)" width="sm" min={0} />
+        <ProFormDigit name="cost_price_rp" label="含税成本(Rp)" width="sm" min={0} />
       </ProForm.Group>
       <ProFormUploadButton
         name="image"
