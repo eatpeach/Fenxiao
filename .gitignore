@@ -2,3 +2,7 @@ backend/data/*.sqlite
 node_modules/
 frontend/dist/
 .DS_Store
+
+# 上传的图片(保留目录)
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep

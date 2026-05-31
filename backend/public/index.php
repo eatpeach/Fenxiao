@@ -19,6 +19,7 @@ use App\Controllers\DistributorController;
 use App\Controllers\OrderController;
 use App\Controllers\CommissionController;
 use App\Controllers\WithdrawalController;
+use App\Controllers\UploadController;
 
 // ---- CORS ----
 header('Access-Control-Allow-Origin: *');
@@ -61,6 +62,8 @@ $router->post('/api/commissions/{id}/settle', fn($p) => (new CommissionControlle
 $router->get('/api/withdrawals',              fn() => (new WithdrawalController())->index());
 $router->post('/api/withdrawals',             fn() => (new WithdrawalController())->store());
 $router->post('/api/withdrawals/{id}/review', fn($p) => (new WithdrawalController())->review($p));
+
+$router->post('/api/upload', fn() => (new UploadController())->store());
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 try {
