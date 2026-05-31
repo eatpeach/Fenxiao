@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import zhCN from 'antd/locale/zh_CN';
 import { ConfigProvider } from 'antd';
+import './index.css';
 import Login from './pages/Login';
 import Layout from './Layout';
 import Products from './pages/Products';
