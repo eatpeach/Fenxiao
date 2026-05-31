@@ -68,6 +68,9 @@ export default function Products() {
         ? <Image src={r.image} width={44} height={44} style={{ objectFit: 'cover', borderRadius: 4 }} />
         : <Tag>无</Tag>,
     },
+    // 仅用于搜索栏的分类下拉，不在表格里重复显示
+    { title: '分类', dataIndex: 'category_id', valueType: 'select', hideInTable: true,
+      request: categoryOptions, fieldProps: { placeholder: '按分类筛选' } },
     { title: '编码', dataIndex: 'product_code', width: 90, search: false },
     { title: '品名', dataIndex: 'name', ellipsis: true },
     { title: '分类', dataIndex: 'category_name', width: 80, search: false,
@@ -75,12 +78,16 @@ export default function Products() {
     { title: '规格', dataIndex: 'spec', width: 100, search: false },
     { title: '产地', dataIndex: 'origin', width: 110, search: false },
     { title: '一盒数量', dataIndex: 'qty_per_box', width: 80, search: false },
+    { title: '单泡价(Rp)', dataIndex: 'price_per_brew_rp', width: 110, search: false,
+      render: (_, r) => rp(r.price_per_brew_rp) },
     { title: '单价(¥)', dataIndex: 'price_rmb', width: 90, search: false,
       render: (_, r) => (r.price_rmb ? `¥${r.price_rmb}` : '-') },
     { title: '一盒价(Rp)', dataIndex: 'box_price_rp', width: 120, search: false,
       render: (_, r) => rp(r.box_price_rp) },
     { title: '批量拿货价', dataIndex: 'bulk_price_rp', width: 120, search: false,
       render: (_, r) => rp(r.bulk_price_rp) },
+    { title: '成本价', dataIndex: 'cost_price_rp', width: 120, search: false,
+      render: (_, r) => rp(r.cost_price_rp) },
     {
       title: '操作', valueType: 'option', width: 110, fixed: 'right',
       render: (_, record) => [
@@ -98,11 +105,12 @@ export default function Products() {
         actionRef={actionRef}
         rowKey="id"
         columns={columns}
-        scroll={{ x: 1200 }}
+        scroll={{ x: 1500 }}
         request={async (params) => {
           const res = await api.get(
             `/api/products?current=${params.current}&pageSize=${params.pageSize}` +
-              (params.name ? `&name=${encodeURIComponent(params.name)}` : '')
+              (params.name ? `&name=${encodeURIComponent(params.name)}` : '') +
+              (params.category_id ? `&category_id=${params.category_id}` : '')
           );
           return { data: res.data || [], success: res.success, total: res.total };
         }}
