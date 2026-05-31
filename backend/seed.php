@@ -84,3 +84,6 @@ while (($row = fgetcsv($fh)) !== false) {
 }
 fclose($fh);
 echo "✅ 已导入茶类商品 $count 条" . PHP_EOL;
+
+// 5) 挂商品图片（public/img 下按条码命名）
+require __DIR__ . '/import_images.php';
