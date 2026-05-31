@@ -3,7 +3,6 @@ import {
   ProTable,
   PageContainer,
   ModalForm,
-  ProForm,
   ProFormText,
   ProFormDigit,
   ProFormSelect,
@@ -11,7 +10,7 @@ import {
   ProFormUploadButton,
 } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, Image, Popconfirm, Tag, message } from 'antd';
+import { Button, Divider, Image, Popconfirm, Tag, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { api, getToken } from '../api';
 
@@ -36,6 +35,12 @@ interface Product {
 }
 
 const rp = (n?: number) => (n == null ? '-' : 'Rp' + Number(n).toLocaleString());
+
+// 数字输入框千分位显示
+const moneyProps: any = {
+  formatter: (v?: string | number) => (v != null && v !== '' ? `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''),
+  parser: (v?: string) => (v ? v.replace(/,/g, '') : ''),
+};
 
 const categoryOptions = async () => {
   const res = await api.get('/api/categories');
@@ -128,7 +133,9 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
   return (
     <ModalForm
       title={isEdit ? '编辑商品' : '新增商品'}
-      width={760}
+      width={720}
+      grid
+      rowProps={{ gutter: 16 }}
       trigger={isEdit
         ? <a>编辑</a>
         : <Button type="primary" icon={<PlusOutlined />}>新增商品</Button>}
@@ -143,35 +150,33 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
         return false;
       }}
     >
-      <ProForm.Group>
-        <ProFormText name="name" label="品名" width="md" rules={[{ required: true }]} />
-        <ProFormSelect name="category_id" label="分类" width="sm" request={categoryOptions} />
-        <ProFormSelect name="status" label="状态" width="xs"
-          options={[{ label: '上架', value: 1 }, { label: '下架', value: 0 }]} />
-      </ProForm.Group>
-      <ProForm.Group>
-        <ProFormText name="product_code" label="编码" width="sm" />
-        <ProFormText name="barcode" label="条码" width="sm" />
-        <ProFormText name="spec" label="规格" width="sm" />
-      </ProForm.Group>
-      <ProForm.Group>
-        <ProFormText name="origin" label="产地" width="sm" />
-        <ProFormText name="unit" label="单位" width="xs" />
-        <ProFormDigit name="qty_per_box" label="一盒数量" width="xs" min={0} />
-      </ProForm.Group>
-      <ProForm.Group>
-        <ProFormDigit name="price_per_brew_rp" label="单泡价(Rp)" width="xs" min={0} />
-        <ProFormDigit name="price_rmb" label="单价(¥)" width="xs" min={0} />
-        <ProFormDigit name="box_price_rp" label="一盒价(Rp)" width="xs" min={0} />
-      </ProForm.Group>
-      <ProForm.Group>
-        <ProFormDigit name="bulk_price_rp" label="不含税成本(Rp)" width="sm" min={0} />
-        <ProFormDigit name="cost_price_rp" label="含税成本(Rp)" width="sm" min={0} />
-      </ProForm.Group>
+      <Divider orientation="left" plain style={{ marginTop: 0 }}>基本信息</Divider>
+      <ProFormText name="name" label="品名" colProps={{ span: 16 }} rules={[{ required: true }]} />
+      <ProFormSelect name="status" label="状态" colProps={{ span: 8 }}
+        options={[{ label: '上架', value: 1 }, { label: '下架', value: 0 }]} />
+      <ProFormSelect name="category_id" label="分类" colProps={{ span: 8 }} request={categoryOptions} />
+      <ProFormText name="product_code" label="编码" colProps={{ span: 8 }} />
+      <ProFormText name="barcode" label="条码" colProps={{ span: 8 }} />
+
+      <Divider orientation="left" plain>规格</Divider>
+      <ProFormText name="spec" label="规格" colProps={{ span: 8 }} />
+      <ProFormText name="origin" label="产地" colProps={{ span: 8 }} />
+      <ProFormText name="unit" label="单位" colProps={{ span: 4 }} />
+      <ProFormDigit name="qty_per_box" label="一盒数量" colProps={{ span: 4 }} min={0} />
+
+      <Divider orientation="left" plain>价格</Divider>
+      <ProFormDigit name="box_price_rp" label="零售价/一盒价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDigit name="bulk_price_rp" label="不含税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDigit name="cost_price_rp" label="含税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDigit name="price_per_brew_rp" label="单泡价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDigit name="price_rmb" label="单价(¥)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+
+      <Divider orientation="left" plain>图片 / 备注</Divider>
       <ProFormUploadButton
         name="image"
         label="商品图片"
         max={1}
+        colProps={{ span: 24 }}
         fieldProps={{
           name: 'file',
           listType: 'picture-card',
@@ -181,7 +186,7 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
         }}
         extra="支持 jpg/png/gif/webp，≤5MB"
       />
-      <ProFormTextArea name="description" label="备注" />
+      <ProFormTextArea name="description" label="备注" colProps={{ span: 24 }} />
     </ModalForm>
   );
 }
