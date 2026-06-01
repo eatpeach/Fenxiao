@@ -1256,9 +1256,9 @@
     "qty": 12,
     "box": 7000000,
     "taxfree": 6500000,
-    "bulk": null,
+    "bulk": 5850000,
     "cost": 6300000,
-    "image": "",
+    "image": "/img/JIU001.jpg",
     "desc": ""
   },
   {
@@ -1273,9 +1273,9 @@
     "qty": 6,
     "box": 1400000,
     "taxfree": 1300000,
-    "bulk": null,
+    "bulk": 1170000,
     "cost": 1260000,
-    "image": "",
+    "image": "/img/JIU002.jpg",
     "desc": ""
   },
   {
@@ -1290,8 +1290,8 @@
     "qty": 6,
     "box": null,
     "taxfree": 10500000,
-    "bulk": null,
-    "cost": 9450000,
+    "bulk": 9450000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1307,8 +1307,8 @@
     "qty": 6,
     "box": null,
     "taxfree": 9000000,
-    "bulk": null,
-    "cost": 8100000,
+    "bulk": 8100000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1324,8 +1324,8 @@
     "qty": 6,
     "box": null,
     "taxfree": 8500000,
-    "bulk": null,
-    "cost": 7650000,
+    "bulk": 7650000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1341,8 +1341,8 @@
     "qty": 6,
     "box": null,
     "taxfree": 1000000,
-    "bulk": null,
-    "cost": 900000,
+    "bulk": 900000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1358,8 +1358,8 @@
     "qty": 6,
     "box": null,
     "taxfree": 800000,
-    "bulk": null,
-    "cost": 720000,
+    "bulk": 720000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1375,8 +1375,8 @@
     "qty": 6,
     "box": null,
     "taxfree": 600000,
-    "bulk": null,
-    "cost": 540000,
+    "bulk": 540000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1392,8 +1392,8 @@
     "qty": 1,
     "box": null,
     "taxfree": 10000000,
-    "bulk": null,
-    "cost": 9000000,
+    "bulk": 9000000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1409,8 +1409,8 @@
     "qty": 4,
     "box": null,
     "taxfree": 10000000,
-    "bulk": null,
-    "cost": 9000000,
+    "bulk": 9000000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1426,9 +1426,9 @@
     "qty": 6,
     "box": 2200000,
     "taxfree": 2100000,
-    "bulk": null,
+    "bulk": 1890000,
     "cost": 1980000,
-    "image": "",
+    "image": "/img/JIU020.png",
     "desc": ""
   },
   {
@@ -1443,9 +1443,9 @@
     "qty": 6,
     "box": 1300000,
     "taxfree": 1200000,
-    "bulk": null,
+    "bulk": 1080000,
     "cost": 1170000,
-    "image": "",
+    "image": "/img/JIU019.png",
     "desc": ""
   },
   {
@@ -1460,9 +1460,9 @@
     "qty": 6,
     "box": 902000,
     "taxfree": 800000,
-    "bulk": null,
+    "bulk": 720000,
     "cost": 811800,
-    "image": "",
+    "image": "/img/JIU018.jpg",
     "desc": ""
   },
   {
@@ -1477,9 +1477,9 @@
     "qty": 6,
     "box": 800000,
     "taxfree": 700000,
-    "bulk": null,
+    "bulk": 630000,
     "cost": 720000,
-    "image": "",
+    "image": "/img/JIU017.jpg",
     "desc": ""
   },
   {
@@ -1494,7 +1494,7 @@
     "qty": 6,
     "box": 850000,
     "taxfree": 750000,
-    "bulk": null,
+    "bulk": 675000,
     "cost": 765000,
     "image": "",
     "desc": ""
@@ -1511,8 +1511,8 @@
     "qty": 4,
     "box": null,
     "taxfree": 3750000,
-    "bulk": null,
-    "cost": 3375000,
+    "bulk": 3375000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1528,9 +1528,9 @@
     "qty": 4,
     "box": null,
     "taxfree": 3200000,
-    "bulk": null,
-    "cost": 2880000,
-    "image": "",
+    "bulk": 2880000,
+    "cost": null,
+    "image": "/img/JIU026.jpg",
     "desc": ""
   },
   {
@@ -1545,9 +1545,9 @@
     "qty": 4,
     "box": 2300000,
     "taxfree": 2100000,
-    "bulk": null,
+    "bulk": 1890000,
     "cost": 2070000,
-    "image": "",
+    "image": "/img/JIU025.png",
     "desc": ""
   },
   {
@@ -1562,9 +1562,9 @@
     "qty": 6,
     "box": 1430000,
     "taxfree": 1300000,
-    "bulk": null,
+    "bulk": 1170000,
     "cost": 1287000,
-    "image": "",
+    "image": "/img/JIU024.png",
     "desc": ""
   },
   {
@@ -1579,9 +1579,9 @@
     "qty": 6,
     "box": 700000,
     "taxfree": 650000,
-    "bulk": null,
+    "bulk": 585000,
     "cost": 630000,
-    "image": "",
+    "image": "/img/JIU023.png",
     "desc": ""
   },
   {
@@ -1596,8 +1596,8 @@
     "qty": 4,
     "box": null,
     "taxfree": 950000,
-    "bulk": null,
-    "cost": 855000,
+    "bulk": 855000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1613,9 +1613,9 @@
     "qty": 6,
     "box": 2900000,
     "taxfree": 2800000,
-    "bulk": null,
+    "bulk": 2520000,
     "cost": 2610000,
-    "image": "",
+    "image": "/img/JIU009.png",
     "desc": ""
   },
   {
@@ -1630,9 +1630,9 @@
     "qty": 6,
     "box": 800000,
     "taxfree": 700000,
-    "bulk": null,
+    "bulk": 630000,
     "cost": 720000,
-    "image": "",
+    "image": "/img/JIU008.png",
     "desc": ""
   },
   {
@@ -1647,9 +1647,9 @@
     "qty": 6,
     "box": 500000,
     "taxfree": 450000,
-    "bulk": null,
+    "bulk": 405000,
     "cost": 450000,
-    "image": "",
+    "image": "/img/JIU007.png",
     "desc": ""
   },
   {
@@ -1664,8 +1664,8 @@
     "qty": 6,
     "box": null,
     "taxfree": 1200000,
-    "bulk": null,
-    "cost": 1080000,
+    "bulk": 1080000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1681,9 +1681,9 @@
     "qty": 6,
     "box": 350000,
     "taxfree": 250000,
-    "bulk": null,
+    "bulk": 225000,
     "cost": 315000,
-    "image": "",
+    "image": "/img/JIU006.png",
     "desc": ""
   },
   {
@@ -1698,9 +1698,9 @@
     "qty": 12,
     "box": null,
     "taxfree": 250000,
-    "bulk": null,
-    "cost": 225000,
-    "image": "",
+    "bulk": 225000,
+    "cost": null,
+    "image": "/img/JIU006.png",
     "desc": ""
   },
   {
@@ -1715,7 +1715,7 @@
     "qty": 6,
     "box": 1300000,
     "taxfree": 1200000,
-    "bulk": null,
+    "bulk": 1080000,
     "cost": 1170000,
     "image": "",
     "desc": ""
@@ -1732,9 +1732,9 @@
     "qty": 6,
     "box": 2600000,
     "taxfree": 2400000,
-    "bulk": null,
+    "bulk": 2160000,
     "cost": 2340000,
-    "image": "",
+    "image": "/img/JIU016.jpg",
     "desc": ""
   },
   {
@@ -1749,9 +1749,9 @@
     "qty": 6,
     "box": 1300000,
     "taxfree": 1200000,
-    "bulk": null,
+    "bulk": 1080000,
     "cost": 1170000,
-    "image": "",
+    "image": "/img/JIU015.png",
     "desc": ""
   },
   {
@@ -1766,9 +1766,9 @@
     "qty": 6,
     "box": 500000,
     "taxfree": 450000,
-    "bulk": null,
+    "bulk": 405000,
     "cost": 450000,
-    "image": "",
+    "image": "/img/JIU014.png",
     "desc": ""
   },
   {
@@ -1783,7 +1783,7 @@
     "qty": 12,
     "box": 250000,
     "taxfree": 170000,
-    "bulk": null,
+    "bulk": 153000,
     "cost": 225000,
     "image": "",
     "desc": ""
@@ -1800,7 +1800,7 @@
     "qty": 12,
     "box": 250000,
     "taxfree": 170000,
-    "bulk": null,
+    "bulk": 153000,
     "cost": 225000,
     "image": "",
     "desc": ""
@@ -1834,8 +1834,8 @@
     "qty": 6,
     "box": null,
     "taxfree": 400000,
-    "bulk": null,
-    "cost": 360000,
+    "bulk": 360000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1851,7 +1851,7 @@
     "qty": 8,
     "box": 350000,
     "taxfree": 330000,
-    "bulk": null,
+    "bulk": 297000,
     "cost": 315000,
     "image": "",
     "desc": ""
@@ -1868,8 +1868,8 @@
     "qty": 24,
     "box": null,
     "taxfree": 30000,
-    "bulk": null,
-    "cost": 27000,
+    "bulk": 27000,
+    "cost": null,
     "image": "",
     "desc": ""
   },
@@ -1885,9 +1885,9 @@
     "qty": 12,
     "box": null,
     "taxfree": 1000000,
-    "bulk": null,
-    "cost": 900000,
-    "image": "",
+    "bulk": 900000,
+    "cost": null,
+    "image": "/img/JIU027.png",
     "desc": ""
   }
 ]
