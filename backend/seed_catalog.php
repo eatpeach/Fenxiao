@@ -32,9 +32,9 @@ foreach ($ids as $id) $del->execute([$id]);
 
 $ins = $db->prepare(
     'INSERT INTO products
-     (category_id, brand, product_code, barcode, name, spec, origin, unit, qty_per_box,
+     (category_id, supplier_id, brand, product_code, barcode, name, spec, origin, unit, qty_per_box,
       box_price_rp, price_taxfree_rp, bulk_price_rp, cost_price_rp, image, description)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
 );
 
 $count = 0;
@@ -43,6 +43,7 @@ foreach ($rows as $p) {
     if (!$cid) continue;
     $ins->execute([
         $cid,
+        $p['supplier'] ?? null,
         $p['brand'] ?? null,
         $p['code'] ?? '',
         $p['barcode'] ?? '',
