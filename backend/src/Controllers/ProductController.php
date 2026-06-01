@@ -7,9 +7,9 @@ use App\Http;
 class ProductController
 {
     private array $fields = [
-        'category_id', 'product_code', 'barcode', 'name', 'image', 'spec',
+        'category_id', 'supplier_id', 'brand', 'product_code', 'barcode', 'name', 'image', 'spec',
         'origin', 'unit', 'qty_per_box', 'price_per_brew_rp', 'price_rmb',
-        'box_price_rp', 'bulk_price_rp', 'cost_price_rp', 'description', 'status',
+        'box_price_rp', 'price_taxfree_rp', 'bulk_price_rp', 'cost_price_rp', 'description', 'status',
     ];
 
     public function index(): void
@@ -27,7 +27,17 @@ class ProductController
             $where[] = 'p.category_id = ?';
             $args[] = (int)$_GET['category_id'];
         }
-        $sql = 'FROM products p LEFT JOIN categories c ON c.id = p.category_id';
+        if (!empty($_GET['supplier_id'])) {
+            $where[] = 'p.supplier_id = ?';
+            $args[] = (int)$_GET['supplier_id'];
+        }
+        if (!empty($_GET['brand'])) {
+            $where[] = 'p.brand = ?';
+            $args[] = $_GET['brand'];
+        }
+        $sql = 'FROM products p
+                LEFT JOIN categories c ON c.id = p.category_id
+                LEFT JOIN suppliers  s ON s.id = p.supplier_id';
         if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
 
         $total = Database::get()->prepare("SELECT COUNT(*) $sql");
@@ -36,10 +46,25 @@ class ProductController
 
         $offset = ($page - 1) * $size;
         $stmt = Database::get()->prepare(
-            "SELECT p.*, c.name AS category_name $sql ORDER BY p.id DESC LIMIT $size OFFSET $offset"
+            "SELECT p.*, c.name AS category_name, s.name AS supplier_name $sql ORDER BY p.id DESC LIMIT $size OFFSET $offset"
         );
         $stmt->execute($args);
         Http::ok($stmt->fetchAll(), ['total' => $totalCount, 'success' => true]);
+    }
+
+    public function brands(): void
+    {
+        Http::requireAuth();
+        $sql = "SELECT DISTINCT brand FROM products WHERE brand IS NOT NULL AND brand <> ''";
+        $args = [];
+        if (!empty($_GET['category_id'])) {
+            $sql .= ' AND category_id = ?';
+            $args[] = (int)$_GET['category_id'];
+        }
+        $sql .= ' ORDER BY brand';
+        $stmt = Database::get()->prepare($sql);
+        $stmt->execute($args);
+        Http::ok(array_column($stmt->fetchAll(), 'brand'));
     }
 
     public function show(array $params): void

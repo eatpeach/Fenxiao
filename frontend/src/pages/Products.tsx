@@ -18,6 +18,9 @@ interface Product {
   id: number;
   name: string;
   category_id?: number;
+  supplier_id?: number;
+  supplier_name?: string;
+  brand?: string;
   product_code: string;
   barcode: string;
   spec: string;
@@ -28,6 +31,7 @@ interface Product {
   price_per_brew_rp: number;
   price_rmb: number;
   box_price_rp: number;
+  price_taxfree_rp: number;
   bulk_price_rp: number;
   cost_price_rp: number;
   description: string;
@@ -45,6 +49,16 @@ const moneyProps: any = {
 const categoryOptions = async () => {
   const res = await api.get('/api/categories');
   return (res.data || []).map((c: any) => ({ label: c.name, value: c.id }));
+};
+
+const supplierOptions = async () => {
+  const res = await api.get('/api/suppliers');
+  return (res.data || []).map((s: any) => ({ label: s.name, value: s.id }));
+};
+
+const brandOptions = async () => {
+  const res = await api.get('/api/product-brands');
+  return (res.data || []).map((b: string) => ({ label: b, value: b }));
 };
 
 // 图片字段 <-> antd Upload fileList 互转
@@ -73,13 +87,21 @@ export default function Products() {
         ? <Image src={r.image} width={44} height={44} style={{ objectFit: 'cover', borderRadius: 4 }} />
         : <Tag>无</Tag>,
     },
-    // 仅用于搜索栏的分类下拉，不在表格里重复显示
+    // 仅用于搜索栏的下拉筛选，不在表格里重复显示
     { title: '分类', dataIndex: 'category_id', valueType: 'select', hideInTable: true,
       request: categoryOptions, fieldProps: { placeholder: '按分类筛选' } },
+    { title: '品牌', dataIndex: 'brand', valueType: 'select', hideInTable: true,
+      request: brandOptions, fieldProps: { placeholder: '按品牌筛选', showSearch: true } },
+    { title: '供应商', dataIndex: 'supplier_id', valueType: 'select', hideInTable: true,
+      request: supplierOptions, fieldProps: { placeholder: '按供应商筛选', showSearch: true } },
     { title: '编码', dataIndex: 'product_code', width: 90, search: false },
     { title: '品名', dataIndex: 'name', ellipsis: true },
+    { title: '品牌', dataIndex: 'brand', width: 90, search: false,
+      render: (_, r) => (r.brand ? <Tag color="blue">{r.brand}</Tag> : '-') },
     { title: '分类', dataIndex: 'category_name', width: 80, search: false,
       render: (_, r: any) => <Tag color="green">{r.category_name}</Tag> },
+    { title: '供应商', dataIndex: 'supplier_name', width: 100, search: false,
+      render: (_, r) => r.supplier_name || '-' },
     { title: '规格', dataIndex: 'spec', width: 100, search: false },
     { title: '产地', dataIndex: 'origin', width: 110, search: false },
     { title: '一盒数量', dataIndex: 'qty_per_box', width: 80, search: false },
@@ -87,8 +109,10 @@ export default function Products() {
       render: (_, r) => rp(r.price_per_brew_rp) },
     { title: '单价(¥)', dataIndex: 'price_rmb', width: 90, search: false,
       render: (_, r) => (r.price_rmb ? `¥${r.price_rmb}` : '-') },
-    { title: '一盒价(Rp)', dataIndex: 'box_price_rp', width: 120, search: false,
+    { title: '含税价(Rp)', dataIndex: 'box_price_rp', width: 120, search: false,
       render: (_, r) => rp(r.box_price_rp) },
+    { title: '免税价(Rp)', dataIndex: 'price_taxfree_rp', width: 120, search: false,
+      render: (_, r) => rp(r.price_taxfree_rp) },
     { title: '不含税成本', dataIndex: 'bulk_price_rp', width: 120, search: false,
       render: (_, r) => rp(r.bulk_price_rp) },
     { title: '含税成本', dataIndex: 'cost_price_rp', width: 120, search: false,
@@ -115,7 +139,9 @@ export default function Products() {
           const res = await api.get(
             `/api/products?current=${params.current}&pageSize=${params.pageSize}` +
               (params.name ? `&name=${encodeURIComponent(params.name)}` : '') +
-              (params.category_id ? `&category_id=${params.category_id}` : '')
+              (params.category_id ? `&category_id=${params.category_id}` : '') +
+              (params.brand ? `&brand=${encodeURIComponent(params.brand)}` : '') +
+              (params.supplier_id ? `&supplier_id=${params.supplier_id}` : '')
           );
           return { data: res.data || [], success: res.success, total: res.total };
         }}
@@ -155,6 +181,8 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
       <ProFormSelect name="status" label="状态" colProps={{ span: 8 }}
         options={[{ label: '上架', value: 1 }, { label: '下架', value: 0 }]} />
       <ProFormSelect name="category_id" label="分类" colProps={{ span: 8 }} request={categoryOptions} />
+      <ProFormText name="brand" label="品牌" colProps={{ span: 8 }} />
+      <ProFormSelect name="supplier_id" label="供应商" colProps={{ span: 8 }} request={supplierOptions} showSearch />
       <ProFormText name="product_code" label="编码" colProps={{ span: 8 }} />
       <ProFormText name="barcode" label="条码" colProps={{ span: 8 }} />
 
@@ -165,7 +193,8 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
       <ProFormDigit name="qty_per_box" label="一盒数量" colProps={{ span: 4 }} min={0} />
 
       <Divider orientation="left" plain>价格</Divider>
-      <ProFormDigit name="box_price_rp" label="零售价/一盒价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDigit name="box_price_rp" label="含税价/零售价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDigit name="price_taxfree_rp" label="免税价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="bulk_price_rp" label="不含税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="cost_price_rp" label="含税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="price_per_brew_rp" label="单泡价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />

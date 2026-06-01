@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Layout from './Layout';
 import Products from './pages/Products';
 import Categories from './pages/Categories';
+import Suppliers from './pages/Suppliers';
 import Dashboard from './pages/Dashboard';
 import Levels from './pages/Levels';
 import Distributors from './pages/Distributors';
@@ -38,6 +39,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<Products />} />
             <Route path="categories" element={<Categories />} />
+            <Route path="suppliers" element={<Suppliers />} />
             <Route path="levels" element={<Levels />} />
             <Route path="distributors" element={<Distributors />} />
             <Route path="orders" element={<Orders />} />

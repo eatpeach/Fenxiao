@@ -14,6 +14,7 @@ use App\Http;
 use App\Controllers\AuthController;
 use App\Controllers\ProductController;
 use App\Controllers\CategoryController;
+use App\Controllers\SupplierController;
 use App\Controllers\LevelController;
 use App\Controllers\DistributorController;
 use App\Controllers\OrderController;
@@ -33,6 +34,7 @@ $router->post('/api/login',        fn() => (new AuthController())->login());
 $router->get('/api/currentUser',   fn() => (new AuthController())->currentUser());
 
 $router->get('/api/products',      fn() => (new ProductController())->index());
+$router->get('/api/product-brands', fn() => (new ProductController())->brands());
 $router->get('/api/products/{id}', fn($p) => (new ProductController())->show($p));
 $router->post('/api/products',     fn() => (new ProductController())->store());
 $router->put('/api/products/{id}', fn($p) => (new ProductController())->update($p));
@@ -42,6 +44,11 @@ $router->get('/api/categories',        fn() => (new CategoryController())->index
 $router->post('/api/categories',       fn() => (new CategoryController())->store());
 $router->put('/api/categories/{id}',   fn($p) => (new CategoryController())->update($p));
 $router->delete('/api/categories/{id}',fn($p) => (new CategoryController())->destroy($p));
+
+$router->get('/api/suppliers',         fn() => (new SupplierController())->index());
+$router->post('/api/suppliers',        fn() => (new SupplierController())->store());
+$router->put('/api/suppliers/{id}',    fn($p) => (new SupplierController())->update($p));
+$router->delete('/api/suppliers/{id}', fn($p) => (new SupplierController())->destroy($p));
 
 $router->get('/api/levels',        fn() => (new LevelController())->index());
 $router->post('/api/levels',       fn() => (new LevelController())->store());

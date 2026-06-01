@@ -29,9 +29,21 @@ CREATE TABLE IF NOT EXISTS categories (
     sort       INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS suppliers (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL UNIQUE,
+    contact    TEXT,
+    phone      TEXT,
+    remark     TEXT,
+    sort       INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS products (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     category_id    INTEGER REFERENCES categories(id),
+    supplier_id    INTEGER REFERENCES suppliers(id),
+    brand          TEXT,      -- 品牌（如白酒：贵州茅台/五粮液…）
     product_code   TEXT,
     barcode        TEXT,
     name           TEXT NOT NULL,
@@ -42,7 +54,8 @@ CREATE TABLE IF NOT EXISTS products (
     qty_per_box    INTEGER,
     price_per_brew_rp REAL,   -- 单泡价格/RP
     price_rmb      REAL,      -- 单价/RMB
-    box_price_rp   REAL,      -- 一盒单价/RP
+    box_price_rp   REAL,      -- 一盒单价/RP（酒水=含税客户价）
+    price_taxfree_rp REAL,    -- 免税客户价/RP
     bulk_price_rp  REAL,      -- 批量拿货价
     cost_price_rp  REAL,      -- 成本价
     description    TEXT,
@@ -92,5 +105,7 @@ CREATE TABLE IF NOT EXISTS withdrawals (
 );
 
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand);
+CREATE INDEX IF NOT EXISTS idx_products_supplier ON products(supplier_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_commissions_user ON commissions(user_id);
