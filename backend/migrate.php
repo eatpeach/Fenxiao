@@ -27,4 +27,8 @@ foreach ($adds as [$t, $col, $type]) {
     }
 }
 
+// ---- 依赖新列的索引：补列之后再建 ----
+$db->exec('CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand)');
+$db->exec('CREATE INDEX IF NOT EXISTS idx_products_supplier ON products(supplier_id)');
+
 echo "✅ 数据库已初始化/升级: " . (require __DIR__ . '/config.php')['db_path'] . PHP_EOL;

@@ -105,7 +105,5 @@ CREATE TABLE IF NOT EXISTS withdrawals (
 );
 
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
-CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand);
-CREATE INDEX IF NOT EXISTS idx_products_supplier ON products(supplier_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_commissions_user ON commissions(user_id);
