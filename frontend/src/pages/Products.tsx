@@ -82,9 +82,9 @@ export default function Products() {
 
   const columns: ProColumns<Product>[] = [
     {
-      title: '图片', dataIndex: 'image', width: 70, search: false,
+      title: '图片', dataIndex: 'image', width: 96, search: false,
       render: (_, r) => r.image
-        ? <Image src={r.image} width={44} height={44} style={{ objectFit: 'cover', borderRadius: 4 }} />
+        ? <Image src={r.image} width={72} height={72} style={{ objectFit: 'cover', borderRadius: 4 }} />
         : <Tag>无</Tag>,
     },
     // 仅用于搜索栏的下拉筛选，不在表格里重复显示
@@ -104,9 +104,7 @@ export default function Products() {
       render: (_, r) => r.supplier_name || '-' },
     { title: '规格', dataIndex: 'spec', width: 100, search: false },
     { title: '产地', dataIndex: 'origin', width: 110, search: false },
-    { title: '一盒数量', dataIndex: 'qty_per_box', width: 80, search: false },
-    { title: '单泡价(Rp)', dataIndex: 'price_per_brew_rp', width: 110, search: false,
-      render: (_, r) => rp(r.price_per_brew_rp) },
+    { title: '包装数量', dataIndex: 'qty_per_box', width: 80, search: false },
     { title: '单价(¥)', dataIndex: 'price_rmb', width: 90, search: false,
       render: (_, r) => (r.price_rmb ? `¥${r.price_rmb}` : '-') },
     { title: '含税价(Rp)', dataIndex: 'box_price_rp', width: 120, search: false,
@@ -190,14 +188,13 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
       <ProFormText name="spec" label="规格" colProps={{ span: 8 }} />
       <ProFormText name="origin" label="产地" colProps={{ span: 8 }} />
       <ProFormText name="unit" label="单位" colProps={{ span: 4 }} />
-      <ProFormDigit name="qty_per_box" label="一盒数量" colProps={{ span: 4 }} min={0} />
+      <ProFormDigit name="qty_per_box" label="包装数量" colProps={{ span: 4 }} min={0} />
 
       <Divider orientation="left" plain>价格</Divider>
       <ProFormDigit name="box_price_rp" label="含税价/零售价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="price_taxfree_rp" label="免税价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="bulk_price_rp" label="不含税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="cost_price_rp" label="含税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
-      <ProFormDigit name="price_per_brew_rp" label="单泡价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="price_rmb" label="单价(¥)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
 
       <Divider orientation="left" plain>图片 / 备注</Divider>
