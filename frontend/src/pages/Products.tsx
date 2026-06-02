@@ -8,6 +8,7 @@ import {
   ProFormSelect,
   ProFormTextArea,
   ProFormUploadButton,
+  ProFormDependency,
 } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { Button, Divider, Image, Popconfirm, Tag, message } from 'antd';
@@ -39,6 +40,10 @@ interface Product {
 }
 
 const rp = (n?: number) => (n == null ? '-' : 'Rp' + Number(n).toLocaleString());
+
+// 利润率 = (售价 - 成本) / 售价
+const margin = (price?: number, cost?: number) =>
+  price && cost != null ? `${(((price - cost) / price) * 100).toFixed(1)}%` : '-';
 
 // 数字输入框千分位显示
 const moneyProps: any = {
@@ -103,18 +108,21 @@ export default function Products() {
     { title: '供应商', dataIndex: 'supplier_name', width: 100, search: false,
       render: (_, r) => r.supplier_name || '-' },
     { title: '规格', dataIndex: 'spec', width: 100, search: false },
-    { title: '产地', dataIndex: 'origin', width: 110, search: false },
     { title: '包装数量', dataIndex: 'qty_per_box', width: 80, search: false },
     { title: '单价(¥)', dataIndex: 'price_rmb', width: 90, search: false,
       render: (_, r) => (r.price_rmb ? `¥${r.price_rmb}` : '-') },
     { title: '含税价(Rp)', dataIndex: 'box_price_rp', width: 120, search: false,
       render: (_, r) => rp(r.box_price_rp) },
-    { title: '免税价(Rp)', dataIndex: 'price_taxfree_rp', width: 120, search: false,
-      render: (_, r) => rp(r.price_taxfree_rp) },
-    { title: '不含税成本', dataIndex: 'bulk_price_rp', width: 120, search: false,
-      render: (_, r) => rp(r.bulk_price_rp) },
     { title: '含税成本', dataIndex: 'cost_price_rp', width: 120, search: false,
       render: (_, r) => rp(r.cost_price_rp) },
+    { title: '含税利润率', dataIndex: 'margin_taxed', width: 90, search: false,
+      render: (_, r) => margin(r.box_price_rp, r.cost_price_rp) },
+    { title: '免税价(Rp)', dataIndex: 'price_taxfree_rp', width: 120, search: false,
+      render: (_, r) => rp(r.price_taxfree_rp) },
+    { title: '免税成本', dataIndex: 'bulk_price_rp', width: 120, search: false,
+      render: (_, r) => rp(r.bulk_price_rp) },
+    { title: '免税利润率', dataIndex: 'margin_taxfree', width: 90, search: false,
+      render: (_, r) => margin(r.price_taxfree_rp, r.bulk_price_rp) },
     {
       title: '操作', valueType: 'option', width: 110, fixed: 'right',
       render: (_, record) => [
@@ -185,17 +193,24 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
       <ProFormText name="barcode" label="条码" colProps={{ span: 8 }} />
 
       <Divider orientation="left" plain>规格</Divider>
-      <ProFormText name="spec" label="规格" colProps={{ span: 8 }} />
-      <ProFormText name="origin" label="产地" colProps={{ span: 8 }} />
-      <ProFormText name="unit" label="单位" colProps={{ span: 4 }} />
-      <ProFormDigit name="qty_per_box" label="包装数量" colProps={{ span: 4 }} min={0} />
+      <ProFormText name="spec" label="规格" colProps={{ span: 12 }} />
+      <ProFormText name="unit" label="单位" colProps={{ span: 6 }} />
+      <ProFormDigit name="qty_per_box" label="包装数量" colProps={{ span: 6 }} min={0} />
 
       <Divider orientation="left" plain>价格</Divider>
-      <ProFormDigit name="box_price_rp" label="含税价/零售价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
-      <ProFormDigit name="price_taxfree_rp" label="免税价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
-      <ProFormDigit name="bulk_price_rp" label="不含税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDigit name="box_price_rp" label="含税价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="cost_price_rp" label="含税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDigit name="price_taxfree_rp" label="免税价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDigit name="bulk_price_rp" label="免税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="price_rmb" label="单价(¥)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDependency name={['box_price_rp', 'cost_price_rp', 'price_taxfree_rp', 'bulk_price_rp']}>
+        {(v) => (
+          <div style={{ color: '#888', margin: '0 0 12px 4px' }}>
+            含税利润率 <b>{margin(v.box_price_rp, v.cost_price_rp)}</b>
+            　·　免税利润率 <b>{margin(v.price_taxfree_rp, v.bulk_price_rp)}</b>
+          </div>
+        )}
+      </ProFormDependency>
 
       <Divider orientation="left" plain>图片 / 备注</Divider>
       <ProFormUploadButton
