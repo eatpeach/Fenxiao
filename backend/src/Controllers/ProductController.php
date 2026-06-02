@@ -82,7 +82,7 @@ class ProductController
         Http::requireAdmin();
         $body = Http::body();
         if (empty($body['name'])) Http::fail('品名不能为空');
-        $cols = array_intersect($this->fields, array_keys($body));
+        $cols = array_values(array_intersect($this->fields, array_keys($body)));
         $placeholders = implode(',', array_fill(0, count($cols), '?'));
         $sql = 'INSERT INTO products (' . implode(',', $cols) . ") VALUES ($placeholders)";
         $stmt = Database::get()->prepare($sql);
@@ -94,7 +94,7 @@ class ProductController
     {
         Http::requireAdmin();
         $body = Http::body();
-        $cols = array_intersect($this->fields, array_keys($body));
+        $cols = array_values(array_intersect($this->fields, array_keys($body)));
         if (!$cols) Http::fail('无可更新字段');
         $set = implode(',', array_map(fn($c) => "$c = ?", $cols));
         $args = array_map(fn($c) => $body[$c], $cols);
