@@ -57,7 +57,7 @@ class DistributorController
             password_hash($b['password'], PASSWORD_DEFAULT),
             $b['name'] ?? '',
             $b['phone'] ?? '',
-            $b['group_no'] ?? '',
+            $this->nextGroupNo(),
             'distributor',
             !empty($b['level_id']) ? (int)$b['level_id'] : null,
             !empty($b['parent_id']) ? (int)$b['parent_id'] : null,
@@ -65,16 +65,30 @@ class DistributorController
         Http::ok(['id' => (int)Database::get()->lastInsertId()]);
     }
 
+    /** 下一个可用群编号：从 1001 起，跳过含数字 4 的，且跳过已占用的 */
+    public function nextGroupNo(): string
+    {
+        $used = [];
+        foreach (Database::get()->query("SELECT group_no FROM users WHERE group_no IS NOT NULL AND group_no <> ''") as $r) {
+            $used[(string)$r['group_no']] = true;
+        }
+        $n = 1001;
+        while (strpos((string)$n, '4') !== false || isset($used[(string)$n])) {
+            $n++;
+        }
+        return (string)$n;
+    }
+
     public function update(array $p): void
     {
         Http::requireAdmin();
         $b = Http::body();
         $id = (int)$p['id'];
-        $sets = ['name = ?', 'phone = ?', 'group_no = ?', 'level_id = ?', 'parent_id = ?', 'status = ?'];
+        // 群编号系统自动生成、不可改：编辑时不更新该列
+        $sets = ['name = ?', 'phone = ?', 'level_id = ?', 'parent_id = ?', 'status = ?'];
         $args = [
             $b['name'] ?? '',
             $b['phone'] ?? '',
-            $b['group_no'] ?? '',
             !empty($b['level_id']) ? (int)$b['level_id'] : null,
             !empty($b['parent_id']) ? (int)$b['parent_id'] : null,
             (int)($b['status'] ?? 1),

@@ -102,7 +102,6 @@ function CreateDistributor({ onDone }: { onDone: () => void }) {
       <ProFormText.Password name="password" label="密码" colProps={{ span: 12 }} rules={[{ required: true }]} />
       <ProFormText name="name" label="姓名(客户名)" colProps={{ span: 12 }} />
       <ProFormText name="phone" label="手机" colProps={{ span: 12 }} />
-      <ProFormText name="group_no" label="群编号" colProps={{ span: 12 }} placeholder="如 1001" />
       <ProFormSelect name="level_id" label="分销等级" colProps={{ span: 12 }} request={levelOptions} />
       <ProFormSelect name="parent_id" label="推广上级" colProps={{ span: 12 }} request={parentOptions} showSearch />
     </ModalForm>
@@ -127,7 +126,7 @@ function EditDistributor({ record, onDone }: { record: Distributor; onDone: () =
     >
       <ProFormText name="name" label="姓名(客户名)" colProps={{ span: 12 }} />
       <ProFormText name="phone" label="手机" colProps={{ span: 12 }} />
-      <ProFormText name="group_no" label="群编号" colProps={{ span: 12 }} placeholder="如 1001" />
+      <ProFormText name="group_no" label="群编号" colProps={{ span: 12 }} readonly tooltip="系统自动生成，不可修改" />
       <ProFormText.Password name="password" label="重置密码" colProps={{ span: 12 }} placeholder="留空则不修改" />
       <ProFormSelect name="status" label="状态" colProps={{ span: 12 }}
         options={[{ label: '启用', value: 1 }, { label: '停用', value: 0 }]} />
