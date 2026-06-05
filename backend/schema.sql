@@ -39,6 +39,16 @@ CREATE TABLE IF NOT EXISTS suppliers (
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- 等级 × 分类 的佣金率/拿货折扣（覆盖等级默认值）
+CREATE TABLE IF NOT EXISTS level_category_rates (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    level_id        INTEGER NOT NULL REFERENCES distributor_levels(id) ON DELETE CASCADE,
+    category_id     INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+    commission_rate REAL NOT NULL DEFAULT 0,
+    discount_rate   REAL NOT NULL DEFAULT 0,
+    UNIQUE(level_id, category_id)
+);
+
 CREATE TABLE IF NOT EXISTS products (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     category_id    INTEGER REFERENCES categories(id),

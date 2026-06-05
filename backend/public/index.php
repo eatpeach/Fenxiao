@@ -51,6 +51,8 @@ $router->put('/api/suppliers/{id}',    fn($p) => (new SupplierController())->upd
 $router->delete('/api/suppliers/{id}', fn($p) => (new SupplierController())->destroy($p));
 
 $router->get('/api/levels',        fn() => (new LevelController())->index());
+$router->get('/api/levels/{id}/rates', fn($p) => (new LevelController())->rates($p));
+$router->put('/api/levels/{id}/rates', fn($p) => (new LevelController())->saveRates($p));
 $router->post('/api/levels',       fn() => (new LevelController())->store());
 $router->put('/api/levels/{id}',   fn($p) => (new LevelController())->update($p));
 $router->delete('/api/levels/{id}',fn($p) => (new LevelController())->destroy($p));
