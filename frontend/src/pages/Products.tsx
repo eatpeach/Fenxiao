@@ -107,17 +107,17 @@ export default function Products() {
       render: (_, r: any) => <Tag color="green">{r.category_name}</Tag> },
     { title: '规格', dataIndex: 'spec', width: 100, search: false },
     { title: '包装数量', dataIndex: 'qty_per_box', width: 80, search: false },
-    { title: '零售价(¥)', dataIndex: 'price_rmb', width: 100, search: false,
+    { title: '零售价(¥)', dataIndex: 'price_rmb', width: 100, search: false, sorter: true,
       render: (_, r) => (r.price_rmb ? `¥${Number(r.price_rmb).toLocaleString()}` : '-') },
-    { title: '含税价(Rp)', dataIndex: 'box_price_rp', width: 120, search: false,
+    { title: '含税价(Rp)', dataIndex: 'box_price_rp', width: 120, search: false, sorter: true,
       render: (_, r) => rp(r.box_price_rp) },
-    { title: '含税成本', dataIndex: 'cost_price_rp', width: 120, search: false,
+    { title: '含税成本', dataIndex: 'cost_price_rp', width: 120, search: false, sorter: true,
       render: (_, r) => rp(r.cost_price_rp) },
     { title: '含税利润率', dataIndex: 'margin_taxed', width: 90, search: false,
       render: (_, r) => margin(r.box_price_rp, r.cost_price_rp) },
-    { title: '免税价(Rp)', dataIndex: 'price_taxfree_rp', width: 120, search: false,
+    { title: '免税价(Rp)', dataIndex: 'price_taxfree_rp', width: 120, search: false, sorter: true,
       render: (_, r) => rp(r.price_taxfree_rp) },
-    { title: '免税成本', dataIndex: 'bulk_price_rp', width: 120, search: false,
+    { title: '免税成本', dataIndex: 'bulk_price_rp', width: 120, search: false, sorter: true,
       render: (_, r) => rp(r.bulk_price_rp) },
     { title: '免税利润率', dataIndex: 'margin_taxfree', width: 90, search: false,
       render: (_, r) => margin(r.price_taxfree_rp, r.bulk_price_rp) },
@@ -141,13 +141,18 @@ export default function Products() {
         rowKey="id"
         columns={columns}
         scroll={{ x: 1500 }}
-        request={async (params) => {
+        request={async (params, sort) => {
+          const sf = Object.keys(sort || {})[0];
+          const sortQ = sf
+            ? `&sortField=${sf}&sortOrder=${sort[sf] === 'ascend' ? 'asc' : 'desc'}`
+            : '';
           const res = await api.get(
             `/api/products?current=${params.current}&pageSize=${params.pageSize}` +
               (params.name ? `&name=${encodeURIComponent(params.name)}` : '') +
               (params.category_id ? `&category_id=${params.category_id}` : '') +
               (params.brand ? `&brand=${encodeURIComponent(params.brand)}` : '') +
-              (params.supplier_id ? `&supplier_id=${params.supplier_id}` : '')
+              (params.supplier_id ? `&supplier_id=${params.supplier_id}` : '') +
+              sortQ
           );
           return { data: res.data || [], success: res.success, total: res.total };
         }}

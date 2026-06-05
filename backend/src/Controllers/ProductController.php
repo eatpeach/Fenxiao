@@ -44,9 +44,19 @@ class ProductController
         $total->execute($args);
         $totalCount = (int)$total->fetchColumn();
 
+        // 排序（仅允许白名单列；NULL 始终排末尾）
+        $sortable = ['price_rmb', 'box_price_rp', 'cost_price_rp',
+                     'price_taxfree_rp', 'bulk_price_rp', 'qty_per_box'];
+        $orderBy = 'p.id DESC';
+        $sf = $_GET['sortField'] ?? '';
+        if (in_array($sf, $sortable, true)) {
+            $dir = (($_GET['sortOrder'] ?? 'asc') === 'desc') ? 'DESC' : 'ASC';
+            $orderBy = "(p.$sf IS NULL), p.$sf $dir";
+        }
+
         $offset = ($page - 1) * $size;
         $stmt = Database::get()->prepare(
-            "SELECT p.*, c.name AS category_name, s.name AS supplier_name $sql ORDER BY p.id DESC LIMIT $size OFFSET $offset"
+            "SELECT p.*, c.name AS category_name, s.name AS supplier_name $sql ORDER BY $orderBy LIMIT $size OFFSET $offset"
         );
         $stmt->execute($args);
         Http::ok($stmt->fetchAll(), ['total' => $totalCount, 'success' => true]);
