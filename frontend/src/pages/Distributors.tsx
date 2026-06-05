@@ -7,7 +7,7 @@ import {
   ProFormSelect,
 } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, Modal, Table, Select, InputNumber, message, Tag } from 'antd';
+import { Button, Modal, Table, Select, message, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '../api';
 
@@ -141,19 +141,17 @@ const fmt = (n: number | null | undefined) => (n == null ? '-' : Number(n).toLoc
 const esc = (s: any) =>
   String(s ?? '').replace(/[&<>"]/g, (c) => (({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' } as any)[c]));
 
-// 按等级出报价单：勾选商品+填数量，导出参考模板的品牌 PDF（打印另存为 PDF）
+// 按等级出报价单（价目表）：让分销商知道含税/不含税拿货价，导出品牌 PDF
 function QuoteButton({ dist }: { dist: Distributor }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [cats, setCats] = useState<string[]>([]);
-  const [qty, setQty] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(false);
 
   const load = async () => {
     setOpen(true);
     setLoading(true);
     setCats([]);
-    setQty({});
     const res = await api.get(`/api/distributors/${dist.id}/quote`);
     setItems((res.data?.items || []).map((it: any, idx: number) => ({ ...it, _k: idx })));
     setLoading(false);
@@ -163,23 +161,17 @@ function QuoteButton({ dist }: { dist: Distributor }) {
     .map((c) => ({ label: c, value: c }));
   const shown = cats.length ? items.filter((i) => cats.includes(i.category_name)) : items;
 
-  const unit = (i: any) => Number(i.price_rp ?? 0);
-  const setQ = (k: number, v: number | null) => setQty((m) => ({ ...m, [k]: v || 0 }));
-  const chosen = items.filter((i) => (qty[i._k] || 0) > 0);
-  const grandTotal = chosen.reduce((s, i) => s + unit(i) * (qty[i._k] || 0), 0);
-
   const exportPDF = () => {
-    if (!chosen.length) { message.warning('请先填写商品数量'); return; }
+    if (!shown.length) { message.warning('没有可导出的商品'); return; }
     const d = new Date();
     const date = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
-    const rows = chosen.map((i, idx) => `
+    const rows = shown.map((i, idx) => `
       <tr>
         <td class="c">${idx + 1}</td>
         <td>${esc(i.name)}</td>
         <td class="c">${esc(i.spec || '')}</td>
-        <td class="c">${qty[i._k]}</td>
-        <td class="r">${fmt(unit(i))}</td>
-        <td class="r">${fmt(unit(i) * qty[i._k])}</td>
+        <td class="r">${fmt(i.taxed_price)}</td>
+        <td class="r">${fmt(i.free_price)}</td>
         <td>${esc(i.brand || '')}</td>
       </tr>`).join('');
     const html = `<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>报价单 ${esc(dist.name)}</title>
@@ -198,7 +190,6 @@ function QuoteButton({ dist }: { dist: Distributor }) {
   th,td { border:1px solid #d9d9d9; padding:8px 10px; vertical-align:top; }
   thead th { background:#eef0f4; font-weight:700; text-align:center; }
   td.c { text-align:center; } td.r { text-align:right; }
-  tfoot td { font-weight:700; background:#fafafa; }
   .notes { margin-top:18px; font-size:12px; color:#444; line-height:1.9; border-top:1px solid #eee; padding-top:12px; }
   .notes b { color:#1a1a1a; }
   @media print { body { padding:12px 16px; } @page { margin:12mm; } }
@@ -209,28 +200,20 @@ function QuoteButton({ dist }: { dist: Distributor }) {
   </div>
   <div class="info">
     <div>客户: ${esc(dist.name || dist.username)}</div>
-    <div class="r">日期: ${date}<br>货币: IDR</div>
+    <div class="r">日期: ${date}<br>货币: IDR（印尼盾）</div>
   </div>
   <table>
     <thead><tr>
-      <th style="width:42px">序号</th><th>商品名称</th><th style="width:90px">规格</th>
-      <th style="width:60px">数量</th><th style="width:120px">单价(印尼盾)</th>
-      <th style="width:130px">小计</th><th style="width:90px">备注</th>
+      <th style="width:42px">序号</th><th>商品名称</th><th style="width:100px">规格</th>
+      <th style="width:130px">含税价</th><th style="width:130px">不含税价</th><th style="width:100px">备注</th>
     </tr></thead>
     <tbody>${rows}</tbody>
-    <tfoot><tr>
-      <td colspan="5" class="r">总金额</td><td class="r">${fmt(grandTotal)}</td><td></td>
-    </tr></tfoot>
   </table>
   <div class="notes">
-    * 印尼盾，印尼对印尼付款<br>
-    * 以上报价有效期为 30 天<br>
-    * 本报价单由斑兔企服出具，最终以签约合同为准<br>
-    <b>价格不含税，税费需客户方承担。</b><br>
-    发票类型及税率：<br>
-    (1) 中国发票：增值税专用发票或普通发票，税率 1%，开票项目：技术服务、咨询费。<br>
-    (2) 印尼发票：PPh23 税率 2%，开票内容：咨询费。<br>
-    发票邮递费由客户方承担。
+    * 价格单位：印尼盾(IDR)<br>
+    * 以上报价有效期为 30 天，最终以签约/订单为准<br>
+    * 本报价单由斑兔企服出具<br>
+    <b>含税价为含税到手价；不含税价不含税费，税费由客户方承担。</b>
   </div>
 </body></html>`;
     const win = window.open('', '_blank', 'width=1000,height=800');
@@ -247,19 +230,12 @@ function QuoteButton({ dist }: { dist: Distributor }) {
       <Modal
         title={`报价单 · ${dist.name || dist.username}（${dist.level_name || '无等级'}）`}
         open={open}
-        width={860}
+        width={760}
         onCancel={() => setOpen(false)}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>合计：<b>Rp {fmt(grandTotal)}</b>（已选 {chosen.length} 项）</span>
-            <span>
-              <Button onClick={() => setOpen(false)}>关闭</Button>
-              <Button type="primary" disabled={!chosen.length} onClick={exportPDF} style={{ marginLeft: 8 }}>
-                导出 PDF
-              </Button>
-            </span>
-          </div>
-        }
+        footer={[
+          <Button key="dl" type="primary" disabled={!shown.length} onClick={exportPDF}>导出 PDF</Button>,
+          <Button key="close" onClick={() => setOpen(false)}>关闭</Button>,
+        ]}
       >
         <Select
           mode="multiple"
@@ -276,22 +252,12 @@ function QuoteButton({ dist }: { dist: Distributor }) {
           loading={loading}
           size="small"
           pagination={false}
-          scroll={{ y: 420 }}
+          scroll={{ y: 440 }}
           columns={[
             { title: '商品名称', dataIndex: 'name' },
-            { title: '规格', dataIndex: 'spec', width: 90 },
-            { title: '单价(印尼盾)', dataIndex: 'price_rp', width: 120, align: 'right', render: (v) => fmt(v) },
-            {
-              title: '数量', width: 110,
-              render: (_, r: any) => (
-                <InputNumber min={0} precision={0} style={{ width: '100%' }}
-                  value={qty[r._k] || 0} onChange={(v) => setQ(r._k, v)} />
-              ),
-            },
-            {
-              title: '小计', width: 130, align: 'right',
-              render: (_, r: any) => fmt(unit(r) * (qty[r._k] || 0)),
-            },
+            { title: '规格', dataIndex: 'spec', width: 100 },
+            { title: '含税价', dataIndex: 'taxed_price', width: 130, align: 'right', render: (v) => fmt(v) },
+            { title: '不含税价', dataIndex: 'free_price', width: 130, align: 'right', render: (v) => fmt(v) },
           ]}
         />
       </Modal>

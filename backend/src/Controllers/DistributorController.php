@@ -97,23 +97,22 @@ class DistributorController
              ORDER BY c.sort, c.id, p.id"
         )->fetchAll();
 
+        $apply = fn($retail, $disc) => $retail === null ? null : (($disc > 0) ? round($retail * $disc) : $retail);
+
         $items = [];
         foreach ($prods as $pr) {
             $cid  = (int)$pr['category_id'];
             $disc = $catDisc[$cid] ?? $defDisc;
-            $retailRp  = $pr['box_price_rp'] !== null ? (float)$pr['box_price_rp']
-                       : ($pr['price_taxfree_rp'] !== null ? (float)$pr['price_taxfree_rp'] : null);
-            $retailRmb = $pr['price_rmb'] !== null ? (float)$pr['price_rmb'] : null;
+            $taxed = $pr['box_price_rp']     !== null ? (float)$pr['box_price_rp']     : null; // 含税价
+            $free  = $pr['price_taxfree_rp'] !== null ? (float)$pr['price_taxfree_rp'] : null; // 不含税(免税)价
             $items[] = [
                 'name'          => $pr['name'],
                 'spec'          => $pr['spec'],
                 'brand'         => $pr['brand'],
                 'category_name' => $pr['category_name'],
                 'discount'      => $disc,
-                'retail_rp'     => $retailRp,
-                'price_rp'      => ($retailRp !== null && $disc > 0) ? round($retailRp * $disc) : $retailRp,
-                'retail_rmb'    => $retailRmb,
-                'price_rmb'     => ($retailRmb !== null && $disc > 0) ? round($retailRmb * $disc) : $retailRmb,
+                'taxed_price'   => $apply($taxed, $disc),   // 含税拿货价
+                'free_price'    => $apply($free, $disc),    // 不含税拿货价
             ];
         }
         Http::ok(['distributor' => $dist, 'items' => $items]);
