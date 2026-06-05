@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   ProTable,
   PageContainer,
@@ -7,7 +7,7 @@ import {
   ProFormSelect,
 } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, message, Tag } from 'antd';
+import { Button, Modal, Table, message, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '../api';
 
@@ -55,9 +55,10 @@ export default function Distributors() {
     {
       title: '操作',
       valueType: 'option',
-      width: 80,
+      width: 130,
       render: (_, record) => [
         <EditDistributor key="edit" record={record} onDone={() => actionRef.current?.reload()} />,
+        <QuoteButton key="quote" dist={record} />,
       ],
     },
   ];
@@ -133,5 +134,72 @@ function EditDistributor({ record, onDone }: { record: Distributor; onDone: () =
       <ProFormSelect name="level_id" label="分销等级" colProps={{ span: 12 }} request={levelOptions} />
       <ProFormSelect name="parent_id" label="推广上级" colProps={{ span: 12 }} request={parentOptions} showSearch />
     </ModalForm>
+  );
+}
+
+const fmt = (n: number | null | undefined) => (n == null ? '-' : Number(n).toLocaleString());
+
+// 按等级一键出报价单（拿货价 = 价格 × 该等级该分类拿货折扣），可下载 Excel(CSV)
+function QuoteButton({ dist }: { dist: Distributor }) {
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const load = async () => {
+    setOpen(true);
+    setLoading(true);
+    const res = await api.get(`/api/distributors/${dist.id}/quote`);
+    setItems(res.data?.items || []);
+    setLoading(false);
+  };
+
+  const download = () => {
+    const header = ['商品名称', '分类', '品牌', '规格', '零售价(Rp)', '拿货价(Rp)', '零售价(¥)', '拿货价(¥)'];
+    const lines = items.map((i) => [i.name, i.category_name || '', i.brand || '', i.spec || '',
+      i.retail_rp ?? '', i.price_rp ?? '', i.retail_rmb ?? '', i.price_rmb ?? '']);
+    const csv = [header, ...lines]
+      .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))
+      .join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `报价单_${groupName(dist.group_no, dist.name)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <>
+      <a onClick={load}>报价单</a>
+      <Modal
+        title={`报价单 · ${dist.name || dist.username}（${dist.level_name || '无等级'}）`}
+        open={open}
+        width={820}
+        onCancel={() => setOpen(false)}
+        footer={[
+          <Button key="dl" type="primary" disabled={!items.length} onClick={download}>下载 Excel(CSV)</Button>,
+          <Button key="close" onClick={() => setOpen(false)}>关闭</Button>,
+        ]}
+      >
+        <Table
+          dataSource={items}
+          rowKey={(_, i) => String(i)}
+          loading={loading}
+          size="small"
+          pagination={false}
+          scroll={{ y: 460 }}
+          columns={[
+            { title: '商品名称', dataIndex: 'name' },
+            { title: '分类', dataIndex: 'category_name', width: 70 },
+            { title: '规格', dataIndex: 'spec', width: 90 },
+            { title: '零售价(Rp)', dataIndex: 'retail_rp', width: 110, align: 'right', render: (v) => fmt(v) },
+            { title: '拿货价(Rp)', dataIndex: 'price_rp', width: 110, align: 'right', render: (v) => fmt(v) },
+            { title: '拿货价(¥)', dataIndex: 'price_rmb', width: 90, align: 'right',
+              render: (v) => (v == null ? '-' : `¥${Number(v).toLocaleString()}`) },
+          ]}
+        />
+      </Modal>
+    </>
   );
 }

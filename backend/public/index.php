@@ -58,6 +58,7 @@ $router->put('/api/levels/{id}',   fn($p) => (new LevelController())->update($p)
 $router->delete('/api/levels/{id}',fn($p) => (new LevelController())->destroy($p));
 
 $router->get('/api/distributors',      fn() => (new DistributorController())->index());
+$router->get('/api/distributors/{id}/quote', fn($p) => (new DistributorController())->quote($p));
 $router->post('/api/distributors',     fn() => (new DistributorController())->store());
 $router->put('/api/distributors/{id}', fn($p) => (new DistributorController())->update($p));
 

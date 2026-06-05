@@ -65,6 +65,60 @@ class DistributorController
         Http::ok(['id' => (int)Database::get()->lastInsertId()]);
     }
 
+    /** 按等级生成报价单：每个商品的拿货价 = 价格 × 该等级该分类拿货折扣（优先分类费率，缺省等级默认） */
+    public function quote(array $p): void
+    {
+        Http::requireAuth();
+        $db = Database::get();
+        $u = $db->prepare(
+            "SELECT u.id, u.name, u.username, u.group_no, u.level_id,
+                    l.name AS level_name, l.discount_rate AS level_discount
+             FROM users u LEFT JOIN distributor_levels l ON l.id = u.level_id
+             WHERE u.id = ? AND u.role = 'distributor'"
+        );
+        $u->execute([(int)$p['id']]);
+        $dist = $u->fetch();
+        if (!$dist) Http::fail('分销商不存在', 404);
+
+        $levelId   = (int)($dist['level_id'] ?? 0);
+        $defDisc   = (float)($dist['level_discount'] ?? 0);
+        $catDisc   = [];   // category_id => discount_rate
+        if ($levelId) {
+            $r = $db->prepare('SELECT category_id, discount_rate FROM level_category_rates WHERE level_id = ?');
+            $r->execute([$levelId]);
+            foreach ($r as $row) $catDisc[(int)$row['category_id']] = (float)$row['discount_rate'];
+        }
+
+        $prods = $db->query(
+            "SELECT p.name, p.spec, p.brand, p.category_id, c.name AS category_name,
+                    p.box_price_rp, p.price_taxfree_rp, p.price_rmb
+             FROM products p LEFT JOIN categories c ON c.id = p.category_id
+             WHERE p.status = 1
+             ORDER BY c.sort, c.id, p.id"
+        )->fetchAll();
+
+        $items = [];
+        foreach ($prods as $pr) {
+            $cid  = (int)$pr['category_id'];
+            $disc = $catDisc[$cid] ?? $defDisc;
+            $retailRp  = $pr['box_price_rp'] !== null ? (float)$pr['box_price_rp']
+                       : ($pr['price_taxfree_rp'] !== null ? (float)$pr['price_taxfree_rp'] : null);
+            $retailRmb = $pr['price_rmb'] !== null ? (float)$pr['price_rmb'] : null;
+            $items[] = [
+                'name'          => $pr['name'],
+                'spec'          => $pr['spec'],
+                'brand'         => $pr['brand'],
+                'category_name' => $pr['category_name'],
+                'discount'      => $disc,
+                'retail_rp'     => $retailRp,
+                'price_rp'      => ($retailRp !== null && $disc > 0) ? round($retailRp * $disc) : $retailRp,
+                'retail_rmb'    => $retailRmb,
+                'price_rmb'     => ($retailRmb !== null && $disc > 0) ? round($retailRmb * $disc) : $retailRmb,
+            ];
+        }
+        Http::ok(['distributor' => $dist, 'items' => $items]);
+    }
+
     /** 下一个可用群编号：从 1001 起，跳过含数字 4 的，且跳过已占用的 */
     public function nextGroupNo(): string
     {
