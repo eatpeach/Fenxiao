@@ -105,12 +105,10 @@ export default function Products() {
       render: (_, r) => (r.brand ? <Tag color="blue">{r.brand}</Tag> : '-') },
     { title: '分类', dataIndex: 'category_name', width: 80, search: false,
       render: (_, r: any) => <Tag color="green">{r.category_name}</Tag> },
-    { title: '供应商', dataIndex: 'supplier_name', width: 100, search: false,
-      render: (_, r) => r.supplier_name || '-' },
     { title: '规格', dataIndex: 'spec', width: 100, search: false },
     { title: '包装数量', dataIndex: 'qty_per_box', width: 80, search: false },
-    { title: '单价(¥)', dataIndex: 'price_rmb', width: 90, search: false,
-      render: (_, r) => (r.price_rmb ? `¥${r.price_rmb}` : '-') },
+    { title: '零售价(¥)', dataIndex: 'price_rmb', width: 100, search: false,
+      render: (_, r) => (r.price_rmb ? `¥${Number(r.price_rmb).toLocaleString()}` : '-') },
     { title: '含税价(Rp)', dataIndex: 'box_price_rp', width: 120, search: false,
       render: (_, r) => rp(r.box_price_rp) },
     { title: '含税成本', dataIndex: 'cost_price_rp', width: 120, search: false,
@@ -123,6 +121,8 @@ export default function Products() {
       render: (_, r) => rp(r.bulk_price_rp) },
     { title: '免税利润率', dataIndex: 'margin_taxfree', width: 90, search: false,
       render: (_, r) => margin(r.price_taxfree_rp, r.bulk_price_rp) },
+    { title: '供应商', dataIndex: 'supplier_name', width: 110, search: false,
+      render: (_, r) => r.supplier_name || '-' },
     {
       title: '操作', valueType: 'option', width: 110, fixed: 'right',
       render: (_, record) => [
@@ -202,7 +202,7 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
       <ProFormDigit name="cost_price_rp" label="含税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="price_taxfree_rp" label="免税价(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDigit name="bulk_price_rp" label="免税成本(Rp)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
-      <ProFormDigit name="price_rmb" label="单价(¥)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
+      <ProFormDigit name="price_rmb" label="零售价(¥)" colProps={{ span: 8 }} min={0} fieldProps={moneyProps} />
       <ProFormDependency name={['box_price_rp', 'cost_price_rp', 'price_taxfree_rp', 'bulk_price_rp']}>
         {(v) => (
           <div style={{ color: '#888', margin: '0 0 12px 4px' }}>
