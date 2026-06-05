@@ -7,7 +7,7 @@ import {
   ProFormSelect,
 } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, Modal, Table, Select, message, Tag } from 'antd';
+import { Button, Modal, Table, Select, Image, message, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '../api';
 
@@ -165,9 +165,11 @@ function QuoteButton({ dist }: { dist: Distributor }) {
     if (!shown.length) { message.warning('没有可导出的商品'); return; }
     const d = new Date();
     const date = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+    const abs = (u: string) => (!u ? '' : u.startsWith('http') ? u : window.location.origin + u);
     const rows = shown.map((i, idx) => `
       <tr>
         <td class="c">${idx + 1}</td>
+        <td class="c">${i.image ? `<img class="pic" src="${esc(abs(i.image))}">` : ''}</td>
         <td>${esc(i.name)}</td>
         <td class="c">${esc(i.spec || '')}</td>
         <td class="r">${fmt(i.taxed_price)}</td>
@@ -190,12 +192,13 @@ function QuoteButton({ dist }: { dist: Distributor }) {
   th,td { border:1px solid #d9d9d9; padding:8px 10px; vertical-align:top; }
   thead th { background:#eef0f4; font-weight:700; text-align:center; }
   td.c { text-align:center; } td.r { text-align:right; }
+  .pic { width:48px; height:48px; object-fit:cover; border-radius:4px; }
   .notes { margin-top:18px; font-size:12px; color:#444; line-height:1.9; border-top:1px solid #eee; padding-top:12px; }
   .notes b { color:#1a1a1a; }
   @media print { body { padding:12px 16px; } @page { margin:12mm; } }
 </style></head><body>
   <div class="head">
-    <div class="brand"><div class="cn">斑兔企服</div><div class="en">BANTUQIFU</div></div>
+    <div class="brand"><div class="cn">斑兔分销</div><div class="en">BANTUQIFU</div></div>
     <div class="title"><div class="cn">报价单</div><div class="en">QUOTATION</div></div>
   </div>
   <div class="info">
@@ -204,24 +207,24 @@ function QuoteButton({ dist }: { dist: Distributor }) {
   </div>
   <table>
     <thead><tr>
-      <th style="width:42px">序号</th><th>商品名称</th><th style="width:100px">规格</th>
-      <th style="width:130px">含税价</th><th style="width:130px">不含税价</th><th style="width:100px">备注</th>
+      <th style="width:42px">序号</th><th style="width:62px">图片</th><th>商品名称</th><th style="width:90px">规格</th>
+      <th style="width:120px">含税价</th><th style="width:120px">不含税价</th><th style="width:90px">备注</th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table>
   <div class="notes">
     * 价格单位：印尼盾(IDR)<br>
     * 以上报价有效期为 30 天，最终以签约/订单为准<br>
-    * 本报价单由斑兔企服出具<br>
+    * 本报价单由斑兔分销出具<br>
     <b>含税价为含税到手价；不含税价不含税费，税费由客户方承担。</b>
   </div>
+  <script>window.addEventListener('load',function(){setTimeout(function(){window.print();},300);});</script>
 </body></html>`;
     const win = window.open('', '_blank', 'width=1000,height=800');
     if (!win) { message.error('请允许浏览器弹出窗口后重试'); return; }
     win.document.write(html);
     win.document.close();
     win.focus();
-    setTimeout(() => win.print(), 350);
   };
 
   return (
@@ -254,10 +257,12 @@ function QuoteButton({ dist }: { dist: Distributor }) {
           pagination={false}
           scroll={{ y: 440 }}
           columns={[
+            { title: '图片', dataIndex: 'image', width: 60,
+              render: (v) => (v ? <Image src={v} width={40} height={40} style={{ objectFit: 'cover', borderRadius: 4 }} /> : '-') },
             { title: '商品名称', dataIndex: 'name' },
-            { title: '规格', dataIndex: 'spec', width: 100 },
-            { title: '含税价', dataIndex: 'taxed_price', width: 130, align: 'right', render: (v) => fmt(v) },
-            { title: '不含税价', dataIndex: 'free_price', width: 130, align: 'right', render: (v) => fmt(v) },
+            { title: '规格', dataIndex: 'spec', width: 90 },
+            { title: '含税价', dataIndex: 'taxed_price', width: 120, align: 'right', render: (v) => fmt(v) },
+            { title: '不含税价', dataIndex: 'free_price', width: 120, align: 'right', render: (v) => fmt(v) },
           ]}
         />
       </Modal>

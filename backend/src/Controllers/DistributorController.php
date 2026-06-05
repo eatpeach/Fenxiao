@@ -90,7 +90,7 @@ class DistributorController
         }
 
         $prods = $db->query(
-            "SELECT p.name, p.spec, p.brand, p.category_id, c.name AS category_name,
+            "SELECT p.name, p.spec, p.brand, p.image, p.category_id, c.name AS category_name,
                     p.box_price_rp, p.price_taxfree_rp, p.price_rmb
              FROM products p LEFT JOIN categories c ON c.id = p.category_id
              WHERE p.status = 1
@@ -109,6 +109,7 @@ class DistributorController
                 'name'          => $pr['name'],
                 'spec'          => $pr['spec'],
                 'brand'         => $pr['brand'],
+                'image'         => $pr['image'],
                 'category_name' => $pr['category_name'],
                 'discount'      => $disc,
                 'taxed_price'   => $apply($taxed, $disc),   // 含税拿货价
