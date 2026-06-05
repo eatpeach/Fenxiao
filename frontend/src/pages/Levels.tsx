@@ -7,8 +7,7 @@ import {
   ProFormDigit,
 } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, message } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { message } from 'antd';
 import { api } from '../api';
 
 interface Level {
@@ -50,9 +49,6 @@ export default function Levels() {
           const res = await api.get('/api/levels');
           return { data: res.data || [], success: res.success };
         }}
-        toolBarRender={() => [
-          <CreateLevel key="create" onDone={() => actionRef.current?.reload()} />,
-        ]}
       />
     </PageContainer>
   );
@@ -75,20 +71,6 @@ function LevelForm({
       <ProFormDigit name="discount_rate" label="拿货折扣(0~1)" colProps={{ span: 12 }} min={0} max={1} fieldProps={{ step: 0.01 }} />
       <ProFormDigit name="sort" label="排序" colProps={{ span: 12 }} min={0} />
     </ModalForm>
-  );
-}
-
-function CreateLevel({ onDone }: { onDone: () => void }) {
-  return (
-    <LevelForm
-      trigger={<Button type="primary" icon={<PlusOutlined />}>新增等级</Button>}
-      onSubmit={async (v) => {
-        const res = await api.post('/api/levels', v);
-        if (res.success) { message.success('已新增'); onDone(); return true; }
-        message.error(res.errorMessage || '失败');
-        return false;
-      }}
-    />
   );
 }
 

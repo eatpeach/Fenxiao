@@ -30,11 +30,16 @@ $levels = [
     ['银牌分销商', 0.08, 0.90],
     ['金牌分销商', 0.12, 0.85],
 ];
-$insLvl = $db->prepare('INSERT OR IGNORE INTO distributor_levels (name, commission_rate, discount_rate, sort) VALUES (?, ?, ?, ?)');
+// 按名幂等：已存在则跳过（distributor_levels.name 无唯一约束，避免重复跑产生重复档位）
+$findLvl = $db->prepare('SELECT COUNT(*) FROM distributor_levels WHERE name = ?');
+$insLvl  = $db->prepare('INSERT INTO distributor_levels (name, commission_rate, discount_rate, sort) VALUES (?, ?, ?, ?)');
 foreach ($levels as $i => $l) {
-    $insLvl->execute([$l[0], $l[1], $l[2], $i]);
+    $findLvl->execute([$l[0]]);
+    if ((int)$findLvl->fetchColumn() === 0) {
+        $insLvl->execute([$l[0], $l[1], $l[2], $i]);
+    }
 }
-echo "✅ 分销商等级已就绪" . PHP_EOL;
+echo "✅ 分销商等级已就绪（固定 3 档）" . PHP_EOL;
 
 // 3) 管理员账号 admin / admin123
 $exists = $db->prepare('SELECT COUNT(*) FROM users WHERE username = ?');
