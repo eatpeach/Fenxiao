@@ -60,8 +60,10 @@ class OrderController
             $orderId = (int)$db->lastInsertId();
 
             $priceCol = $currency === 'RMB' ? 'price_rmb' : 'box_price_rp';
+            $buyerLevel = $this->levelOf($userId);
             $total = 0;
-            $getProduct = $db->prepare("SELECT name, $priceCol AS price FROM products WHERE id = ?");
+            $lineItems = [];
+            $getProduct = $db->prepare("SELECT name, category_id, $priceCol AS price FROM products WHERE id = ?");
             $insItem = $db->prepare(
                 'INSERT INTO order_items (order_id, product_id, product_name, price, qty, subtotal)
                  VALUES (?,?,?,?,?,?)'
@@ -72,14 +74,19 @@ class OrderController
                 $getProduct->execute([$pid]);
                 $prod = $getProduct->fetch();
                 if (!$prod) continue;
-                $price = (float)$prod['price'];
+                $catId  = (int)$prod['category_id'];
+                $retail = (float)$prod['price'];
+                // 拿货价 = 零售价 × 买家该分类拿货折扣（优先分类费率，缺省等级默认）
+                [, $disc] = $this->rateFor($buyerLevel, $catId);
+                $price = ($disc > 0) ? round($retail * $disc) : $retail;
                 $subtotal = $price * $qty;
                 $total += $subtotal;
                 $insItem->execute([$orderId, $pid, $prod['name'], $price, $qty, $subtotal]);
+                $lineItems[] = ['category_id' => $catId, 'subtotal' => $subtotal];
             }
 
             $db->prepare('UPDATE orders SET total_amount = ? WHERE id = ?')->execute([$total, $orderId]);
-            $this->generateCommissions($orderId, $userId, $total);
+            $this->generateCommissions($orderId, $userId, $lineItems, $total);
 
             $db->commit();
             Http::ok(['id' => $orderId, 'order_no' => $orderNo, 'total' => $total]);
@@ -89,15 +96,11 @@ class OrderController
         }
     }
 
-    /** 沿推广上级链，最多两级，按各自等级 commission_rate 返佣 */
-    private function generateCommissions(int $orderId, int $buyerId, float $total): void
+    /** 沿推广上级链最多两级，按「分类费率优先、等级默认兜底」逐明细计佣 */
+    private function generateCommissions(int $orderId, int $buyerId, array $lineItems, float $total): void
     {
         $db = Database::get();
-        $getUser = $db->prepare(
-            'SELECT u.parent_id, l.commission_rate
-             FROM users u LEFT JOIN distributor_levels l ON l.id = u.level_id
-             WHERE u.id = ?'
-        );
+        $getUser = $db->prepare('SELECT parent_id, level_id FROM users WHERE id = ?');
         $insComm = $db->prepare(
             'INSERT INTO commissions (order_id, user_id, amount, rate, level) VALUES (?,?,?,?,?)'
         );
@@ -109,11 +112,42 @@ class OrderController
             $parentId = (int)$row['parent_id'];
             $getUser->execute([$parentId]);
             $parent = $getUser->fetch();
-            $rate = (float)($parent['commission_rate'] ?? 0);
-            if ($rate > 0) {
-                $insComm->execute([$orderId, $parentId, $total * $rate, $rate, $level]);
+            $plevel = (int)($parent['level_id'] ?? 0);
+            $amount = 0;
+            foreach ($lineItems as $li) {
+                [$comm] = $this->rateFor($plevel, (int)$li['category_id']);
+                $amount += $li['subtotal'] * $comm;
+            }
+            if ($amount > 0) {
+                $rate = $total > 0 ? $amount / $total : 0;   // 混合后的有效费率（仅记录用）
+                $insComm->execute([$orderId, $parentId, $amount, $rate, $level]);
             }
             $row = $parent;
         }
+    }
+
+    /** 用户的等级 id（无则 0） */
+    private function levelOf(int $userId): int
+    {
+        $s = Database::get()->prepare('SELECT level_id FROM users WHERE id = ?');
+        $s->execute([$userId]);
+        return (int)$s->fetchColumn();
+    }
+
+    /** 返回 [commission_rate, discount_rate]：优先 level×category，缺省取等级默认值 */
+    private function rateFor(int $levelId, int $categoryId): array
+    {
+        if ($levelId <= 0) return [0.0, 0.0];
+        $db = Database::get();
+        $s = $db->prepare(
+            'SELECT commission_rate, discount_rate FROM level_category_rates WHERE level_id = ? AND category_id = ?'
+        );
+        $s->execute([$levelId, $categoryId]);
+        $r = $s->fetch();
+        if ($r) return [(float)$r['commission_rate'], (float)$r['discount_rate']];
+        $d = $db->prepare('SELECT commission_rate, discount_rate FROM distributor_levels WHERE id = ?');
+        $d->execute([$levelId]);
+        $dr = $d->fetch();
+        return [(float)($dr['commission_rate'] ?? 0), (float)($dr['discount_rate'] ?? 0)];
     }
 }
