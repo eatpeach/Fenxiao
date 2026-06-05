@@ -714,7 +714,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   @media print{body{padding:12px 16px;} @page{margin:12mm;}}
 </style></head><body>
   <div class="head">
-    <div class="brand"><div class="cn">斑兔企服</div><div class="en">BANTUQIFU</div></div>
+    <div class="brand"><div class="cn">斑兔分销</div><div class="en">BANTUQIFU</div></div>
     <div class="title"><div class="cn">账单 / INVOICE</div><div class="en">${uf(n.order_no)}</div></div>
   </div>
   <div class="info">
@@ -735,7 +735,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   </table>
   <div class="notes">
     * 请按上述应付金额付款，付款后请提供转账凭证。<br>
-    * 本账单由斑兔企服出具，最终以签约合同为准。<br>
+    * 本账单由斑兔分销出具，最终以签约合同为准。<br>
     价格不含税，税费需客户方承担。中国发票税率 1%（技术服务/咨询费）；印尼发票 PPh23 税率 2%（咨询费）。
   </div>
 </body></html>`,c=window.open("","_blank","width=1000,height=800");if(!c){Qt.error("请允许浏览器弹出窗口后重试");return}c.document.write(l),c.document.close(),c.focus(),setTimeout(()=>c.print(),350)}async function U9(e,t){const n=Number(e.total_amount||0),r=Number(e.paid_amount||0),a=Number(e.outstanding??n-r),i=`${e.group_no?`[斑兔分销 ${e.group_no}] ${e.user_name||""}`:e.user_name||""} 您好，订单 ${e.order_no}：
