@@ -100,7 +100,7 @@ export default function Products() {
     { title: '供应商', dataIndex: 'supplier_id', valueType: 'select', hideInTable: true,
       request: supplierOptions, fieldProps: { placeholder: '按供应商筛选', showSearch: true } },
     { title: '编码', dataIndex: 'product_code', width: 90, search: false },
-    { title: '品名', dataIndex: 'name', ellipsis: true },
+    { title: '商品名称', dataIndex: 'name', width: 220 },
     { title: '品牌', dataIndex: 'brand', width: 90, search: false,
       render: (_, r) => (r.brand ? <Tag color="blue">{r.brand}</Tag> : '-') },
     { title: '分类', dataIndex: 'category_name', width: 80, search: false,
@@ -188,7 +188,7 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
       }}
     >
       <Divider orientation="left" plain style={{ marginTop: 0 }}>基本信息</Divider>
-      <ProFormText name="name" label="品名" colProps={{ span: 16 }} rules={[{ required: true }]} />
+      <ProFormText name="name" label="商品名称" colProps={{ span: 16 }} rules={[{ required: true }]} />
       <ProFormSelect name="status" label="状态" colProps={{ span: 8 }}
         options={[{ label: '上架', value: 1 }, { label: '下架', value: 0 }]} />
       <ProFormSelect name="category_id" label="分类" colProps={{ span: 8 }} request={categoryOptions} />
