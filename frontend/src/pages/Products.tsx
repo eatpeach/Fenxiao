@@ -87,7 +87,7 @@ export default function Products() {
 
   const columns: ProColumns<Product>[] = [
     {
-      title: '图片', dataIndex: 'image', width: 96, search: false,
+      title: '商品图片', dataIndex: 'image', width: 96, search: false,
       render: (_, r) => r.image
         ? <Image src={r.image} width={72} height={72} style={{ objectFit: 'cover', borderRadius: 4 }} />
         : <Tag>无</Tag>,
