@@ -20,6 +20,8 @@ $adds = [
     ['products', 'brand', 'TEXT'],
     ['products', 'price_taxfree_rp', 'REAL'],
     ['users', 'group_no', 'TEXT'],
+    ['orders', 'paid_amount', 'REAL NOT NULL DEFAULT 0'],
+    ['orders', 'dunned_at', 'TEXT'],
 ];
 foreach ($adds as [$t, $col, $type]) {
     if (!$colExists($t, $col)) {

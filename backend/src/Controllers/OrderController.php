@@ -13,29 +13,64 @@ class OrderController
         $size = min(100, max(1, (int)($_GET['pageSize'] ?? 20)));
         $offset = ($page - 1) * $size;
 
-        $total = (int)Database::get()->query('SELECT COUNT(*) FROM orders')->fetchColumn();
+        $where = [];
+        $args  = [];
+        $pay = $_GET['pay'] ?? '';
+        if ($pay === 'unpaid')        $where[] = 'o.paid_amount <= 0';
+        elseif ($pay === 'partial')   $where[] = 'o.paid_amount > 0 AND o.paid_amount < o.total_amount';
+        elseif ($pay === 'paid')      $where[] = 'o.total_amount > 0 AND o.paid_amount >= o.total_amount';
+        if (!empty($_GET['outstanding'])) $where[] = 'o.total_amount - o.paid_amount > 0';
+
+        $sql = 'FROM orders o LEFT JOIN users u ON u.id = o.user_id';
+        if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
+
+        $total = Database::get()->prepare("SELECT COUNT(*) $sql");
+        $total->execute($args);
+        $totalCount = (int)$total->fetchColumn();
+
         $stmt = Database::get()->prepare(
-            "SELECT o.*, u.name AS user_name,
+            "SELECT o.*, u.name AS user_name, u.group_no,
+                    (o.total_amount - o.paid_amount) AS outstanding,
+                    CAST(julianday('now') - julianday(o.created_at) AS INTEGER) AS age_days,
                     (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) AS item_count
-             FROM orders o LEFT JOIN users u ON u.id = o.user_id
-             ORDER BY o.id DESC LIMIT $size OFFSET $offset"
+             $sql ORDER BY o.id DESC LIMIT $size OFFSET $offset"
         );
-        $stmt->execute();
-        Http::ok($stmt->fetchAll(), ['total' => $total]);
+        $stmt->execute($args);
+        Http::ok($stmt->fetchAll(), ['total' => $totalCount]);
     }
 
     public function show(array $p): void
     {
         Http::requireAuth();
         $db = Database::get();
-        $o = $db->prepare('SELECT * FROM orders WHERE id = ?');
-        $o->execute([(int)$p['id']]);
+        $id = (int)$p['id'];
+        $o = $db->prepare(
+            'SELECT o.*, u.name AS user_name, u.group_no, u.username,
+                    (o.total_amount - o.paid_amount) AS outstanding
+             FROM orders o LEFT JOIN users u ON u.id = o.user_id WHERE o.id = ?'
+        );
+        $o->execute([$id]);
         $order = $o->fetch();
         if (!$order) Http::fail('订单不存在', 404);
+
         $items = $db->prepare('SELECT * FROM order_items WHERE order_id = ?');
-        $items->execute([(int)$p['id']]);
+        $items->execute([$id]);
         $order['items'] = $items->fetchAll();
+
+        $pm = $db->prepare('SELECT * FROM payments WHERE order_id = ? ORDER BY id DESC');
+        $pm->execute([$id]);
+        $order['payments'] = $pm->fetchAll();
+
         Http::ok($order);
+    }
+
+    /** 记录催收时间 */
+    public function dun(array $p): void
+    {
+        Http::requireAdmin();
+        $stmt = Database::get()->prepare("UPDATE orders SET dunned_at = datetime('now') WHERE id = ?");
+        $stmt->execute([(int)$p['id']]);
+        Http::ok(['dunned' => 1]);
     }
 
     /**

@@ -19,6 +19,7 @@ use App\Controllers\LevelController;
 use App\Controllers\DistributorController;
 use App\Controllers\OrderController;
 use App\Controllers\CommissionController;
+use App\Controllers\PaymentController;
 use App\Controllers\WithdrawalController;
 use App\Controllers\UploadController;
 
@@ -65,6 +66,12 @@ $router->put('/api/distributors/{id}', fn($p) => (new DistributorController())->
 $router->get('/api/orders',      fn() => (new OrderController())->index());
 $router->get('/api/orders/{id}', fn($p) => (new OrderController())->show($p));
 $router->post('/api/orders',     fn() => (new OrderController())->store());
+$router->post('/api/orders/{id}/dun', fn($p) => (new OrderController())->dun($p));
+
+$router->get('/api/payments',              fn() => (new PaymentController())->index());
+$router->post('/api/payments',             fn() => (new PaymentController())->store());
+$router->post('/api/payments/{id}/confirm', fn($p) => (new PaymentController())->confirm($p));
+$router->post('/api/payments/{id}/reject',  fn($p) => (new PaymentController())->reject($p));
 
 $router->get('/api/commissions',            fn() => (new CommissionController())->index());
 $router->post('/api/commissions/{id}/settle', fn($p) => (new CommissionController())->settle($p));

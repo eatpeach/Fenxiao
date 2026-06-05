@@ -12,6 +12,8 @@ import {
   ProfileOutlined,
   AccountBookOutlined,
   WalletOutlined,
+  DollarOutlined,
+  AlertOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
 import { clearToken } from './api';
@@ -37,6 +39,8 @@ export default function Layout() {
           { path: '/distributors', name: '分销商', icon: <TeamOutlined /> },
           { path: '/levels', name: '分销等级', icon: <CrownOutlined /> },
           { path: '/orders', name: '订单管理', icon: <ProfileOutlined /> },
+          { path: '/payments', name: '收款审核', icon: <DollarOutlined /> },
+          { path: '/receivables', name: '应收催收', icon: <AlertOutlined /> },
           { path: '/commissions', name: '佣金结算', icon: <AccountBookOutlined /> },
           { path: '/withdrawals', name: '提现管理', icon: <WalletOutlined /> },
         ],

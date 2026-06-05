@@ -12,12 +12,16 @@ import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { Button, message, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '../api';
+import { PaymentModal, PayStatusTag, exportInvoice, dunOrder, money } from '../orderShared';
 
 interface Order {
   id: number;
   order_no: string;
   user_name: string;
+  group_no?: string;
   total_amount: number;
+  paid_amount: number;
+  outstanding: number;
   currency: string;
   status: string;
   item_count: number;
@@ -44,9 +48,24 @@ export default function Orders() {
     { title: '订单号', dataIndex: 'order_no', width: 180 },
     { title: '分销商', dataIndex: 'user_name' },
     { title: '商品数', dataIndex: 'item_count', width: 80 },
-    { title: '金额', dataIndex: 'total_amount', render: (_, r) => `${r.currency === 'RMB' ? '¥' : 'Rp'}${Number(r.total_amount).toLocaleString()}` },
-    { title: '状态', dataIndex: 'status', render: (_, r) => <Tag color={statusColor[r.status]}>{r.status}</Tag> },
-    { title: '时间', dataIndex: 'created_at', width: 170 },
+    { title: '应付', dataIndex: 'total_amount', width: 120, render: (_, r) => money(r, r.total_amount) },
+    { title: '已收', dataIndex: 'paid_amount', width: 120, render: (_, r) => money(r, r.paid_amount) },
+    { title: '尾款', dataIndex: 'outstanding', width: 120,
+      render: (_, r) => money(r, r.outstanding ?? r.total_amount - (r.paid_amount || 0)) },
+    { title: '收款', dataIndex: 'pay', width: 90, render: (_, r) => <PayStatusTag order={r} /> },
+    { title: '状态', dataIndex: 'status', width: 90, render: (_, r) => <Tag color={statusColor[r.status]}>{r.status}</Tag> },
+    { title: '时间', dataIndex: 'created_at', width: 160 },
+    {
+      title: '操作', valueType: 'option', width: 190, fixed: 'right',
+      render: (_, r) => {
+        const out = Number(r.outstanding ?? r.total_amount - (r.paid_amount || 0));
+        return [
+          <PaymentModal key="pay" order={r} onDone={() => actionRef.current?.reload()} />,
+          <a key="inv" onClick={() => exportInvoice(r.id)}>Invoice</a>,
+          out > 0 ? <a key="dun" onClick={() => dunOrder(r, () => actionRef.current?.reload())}>催收</a> : null,
+        ];
+      },
+    },
   ];
 
   return (
@@ -56,6 +75,7 @@ export default function Orders() {
         rowKey="id"
         columns={columns}
         search={false}
+        scroll={{ x: 1300 }}
         request={async (params) => {
           const res = await api.get(`/api/orders?current=${params.current}&pageSize=${params.pageSize}`);
           return { data: res.data || [], success: res.success, total: res.total };

@@ -13,6 +13,8 @@ import Dashboard from './pages/Dashboard';
 import Levels from './pages/Levels';
 import Distributors from './pages/Distributors';
 import Orders from './pages/Orders';
+import Payments from './pages/Payments';
+import Receivables from './pages/Receivables';
 import Commissions from './pages/Commissions';
 import Withdrawals from './pages/Withdrawals';
 import { getToken } from './api';
@@ -43,6 +45,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="levels" element={<Levels />} />
             <Route path="distributors" element={<Distributors />} />
             <Route path="orders" element={<Orders />} />
+            <Route path="payments" element={<Payments />} />
+            <Route path="receivables" element={<Receivables />} />
             <Route path="commissions" element={<Commissions />} />
             <Route path="withdrawals" element={<Withdrawals />} />
           </Route>

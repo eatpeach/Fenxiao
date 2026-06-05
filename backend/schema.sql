@@ -79,10 +79,24 @@ CREATE TABLE IF NOT EXISTS orders (
     order_no     TEXT NOT NULL UNIQUE,
     user_id      INTEGER NOT NULL REFERENCES users(id),
     total_amount REAL NOT NULL DEFAULT 0,
+    paid_amount  REAL NOT NULL DEFAULT 0,      -- 已确认收款累计；尾款=total-paid
     currency     TEXT NOT NULL DEFAULT 'RP',  -- RP | RMB
     status       TEXT NOT NULL DEFAULT 'pending', -- pending|paid|shipped|done|cancelled
     remark       TEXT,
+    dunned_at    TEXT,                          -- 最近催收时间
     created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- 收款记录（凭证 + 财务确认）
+CREATE TABLE IF NOT EXISTS payments (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id     INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    amount       REAL NOT NULL,
+    proof_image  TEXT,
+    status       TEXT NOT NULL DEFAULT 'pending', -- pending|confirmed|rejected
+    note         TEXT,
+    created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+    confirmed_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS order_items (
