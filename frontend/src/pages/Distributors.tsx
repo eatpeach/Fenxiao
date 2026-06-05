@@ -7,7 +7,7 @@ import {
   ProFormSelect,
 } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, Modal, Table, message, Tag } from 'antd';
+import { Button, Modal, Table, Select, message, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '../api';
 
@@ -143,19 +143,26 @@ const fmt = (n: number | null | undefined) => (n == null ? '-' : Number(n).toLoc
 function QuoteButton({ dist }: { dist: Distributor }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
+  const [cats, setCats] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   const load = async () => {
     setOpen(true);
     setLoading(true);
+    setCats([]);
     const res = await api.get(`/api/distributors/${dist.id}/quote`);
     setItems(res.data?.items || []);
     setLoading(false);
   };
 
+  const catOptions = Array.from(new Set(items.map((i) => i.category_name).filter(Boolean)))
+    .map((c) => ({ label: c, value: c }));
+  // 未选 = 全部；选了就只看选中的分类
+  const shown = cats.length ? items.filter((i) => cats.includes(i.category_name)) : items;
+
   const download = () => {
     const header = ['商品名称', '分类', '品牌', '规格', '零售价(Rp)', '拿货价(Rp)', '零售价(¥)', '拿货价(¥)'];
-    const lines = items.map((i) => [i.name, i.category_name || '', i.brand || '', i.spec || '',
+    const lines = shown.map((i) => [i.name, i.category_name || '', i.brand || '', i.spec || '',
       i.retail_rp ?? '', i.price_rp ?? '', i.retail_rmb ?? '', i.price_rmb ?? '']);
     const csv = [header, ...lines]
       .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))
@@ -178,17 +185,26 @@ function QuoteButton({ dist }: { dist: Distributor }) {
         width={820}
         onCancel={() => setOpen(false)}
         footer={[
-          <Button key="dl" type="primary" disabled={!items.length} onClick={download}>下载 Excel(CSV)</Button>,
+          <Button key="dl" type="primary" disabled={!shown.length} onClick={download}>下载 Excel(CSV)</Button>,
           <Button key="close" onClick={() => setOpen(false)}>关闭</Button>,
         ]}
       >
+        <Select
+          mode="multiple"
+          allowClear
+          placeholder="按商品分类筛选（不选=全部）"
+          style={{ width: '100%', marginBottom: 12 }}
+          value={cats}
+          onChange={setCats}
+          options={catOptions}
+        />
         <Table
-          dataSource={items}
+          dataSource={shown}
           rowKey={(_, i) => String(i)}
           loading={loading}
           size="small"
           pagination={false}
-          scroll={{ y: 460 }}
+          scroll={{ y: 420 }}
           columns={[
             { title: '商品名称', dataIndex: 'name' },
             { title: '分类', dataIndex: 'category_name', width: 70 },
