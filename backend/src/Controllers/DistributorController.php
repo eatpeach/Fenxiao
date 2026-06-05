@@ -29,7 +29,7 @@ class DistributorController
 
         $offset = ($page - 1) * $size;
         $stmt = Database::get()->prepare(
-            "SELECT u.id, u.username, u.name, u.phone, u.level_id, u.parent_id,
+            "SELECT u.id, u.username, u.name, u.phone, u.group_no, u.level_id, u.parent_id,
                     u.balance, u.status, l.name AS level_name, p.name AS parent_name
              $sql ORDER BY u.id DESC LIMIT $size OFFSET $offset"
         );
@@ -49,14 +49,15 @@ class DistributorController
         if ($exists->fetchColumn()) Http::fail('用户名已存在');
 
         $stmt = Database::get()->prepare(
-            'INSERT INTO users (username, password, name, phone, role, level_id, parent_id)
-             VALUES (?,?,?,?,?,?,?)'
+            'INSERT INTO users (username, password, name, phone, group_no, role, level_id, parent_id)
+             VALUES (?,?,?,?,?,?,?,?)'
         );
         $stmt->execute([
             $b['username'],
             password_hash($b['password'], PASSWORD_DEFAULT),
             $b['name'] ?? '',
             $b['phone'] ?? '',
+            $b['group_no'] ?? '',
             'distributor',
             !empty($b['level_id']) ? (int)$b['level_id'] : null,
             !empty($b['parent_id']) ? (int)$b['parent_id'] : null,
@@ -69,10 +70,11 @@ class DistributorController
         Http::requireAdmin();
         $b = Http::body();
         $id = (int)$p['id'];
-        $sets = ['name = ?', 'phone = ?', 'level_id = ?', 'parent_id = ?', 'status = ?'];
+        $sets = ['name = ?', 'phone = ?', 'group_no = ?', 'level_id = ?', 'parent_id = ?', 'status = ?'];
         $args = [
             $b['name'] ?? '',
             $b['phone'] ?? '',
+            $b['group_no'] ?? '',
             !empty($b['level_id']) ? (int)$b['level_id'] : null,
             !empty($b['parent_id']) ? (int)$b['parent_id'] : null,
             (int)($b['status'] ?? 1),

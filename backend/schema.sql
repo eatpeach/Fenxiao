@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
     password    TEXT NOT NULL,               -- password_hash
     name        TEXT,
     phone       TEXT,
+    group_no    TEXT,                                -- 对接群编号，群名格式：[斑兔分销 1001] 客户名
     role        TEXT NOT NULL DEFAULT 'distributor', -- admin | distributor
     level_id    INTEGER REFERENCES distributor_levels(id),
     parent_id   INTEGER REFERENCES users(id),         -- 推广上级

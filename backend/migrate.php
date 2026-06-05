@@ -19,6 +19,7 @@ $adds = [
     ['products', 'supplier_id', 'INTEGER'],
     ['products', 'brand', 'TEXT'],
     ['products', 'price_taxfree_rp', 'REAL'],
+    ['users', 'group_no', 'TEXT'],
 ];
 foreach ($adds as [$t, $col, $type]) {
     if (!$colExists($t, $col)) {
