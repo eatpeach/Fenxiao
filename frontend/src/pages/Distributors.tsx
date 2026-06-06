@@ -195,8 +195,11 @@ function QuoteButton({ dist }: { dist: Distributor }) {
   .pic { width:48px; height:48px; object-fit:cover; border-radius:4px; }
   .notes { margin-top:18px; font-size:12px; color:#444; line-height:1.9; border-top:1px solid #eee; padding-top:12px; }
   .notes b { color:#1a1a1a; }
-  @media print { body { padding:12px 16px; } @page { margin:12mm; } }
+  .bar { position:sticky; top:0; z-index:9; background:#fff; padding:8px 0 12px; text-align:right; border-bottom:1px dashed #ddd; margin-bottom:14px; }
+  .bar button { font-size:14px; padding:8px 18px; background:#1677ff; color:#fff; border:none; border-radius:6px; cursor:pointer; }
+  @media print { body { padding:12px 16px; } @page { margin:12mm; } .no-print { display:none !important; } }
 </style></head><body>
+  <div class="bar no-print"><button onclick="window.print()">打印 / 保存为 PDF</button></div>
   <div class="head">
     <div class="brand"><div class="cn">斑兔分销</div><div class="en">BANTUQIFU</div></div>
     <div class="title"><div class="cn">报价单</div><div class="en">QUOTATION</div></div>
@@ -218,7 +221,6 @@ function QuoteButton({ dist }: { dist: Distributor }) {
     * 本报价单由斑兔分销出具<br>
     <b>含税价为含税到手价；不含税价不含税费，税费由客户方承担。</b>
   </div>
-  <script>window.addEventListener('load',function(){setTimeout(function(){window.print();},300);});</script>
 </body></html>`;
     const win = window.open('', '_blank', 'width=1000,height=800');
     if (!win) { message.error('请允许浏览器弹出窗口后重试'); return; }
@@ -236,7 +238,7 @@ function QuoteButton({ dist }: { dist: Distributor }) {
         width={760}
         onCancel={() => setOpen(false)}
         footer={[
-          <Button key="dl" type="primary" disabled={!shown.length} onClick={exportPDF}>导出 PDF</Button>,
+          <Button key="dl" type="primary" disabled={!shown.length} onClick={exportPDF}>预览 / 打印 PDF</Button>,
           <Button key="close" onClick={() => setOpen(false)}>关闭</Button>,
         ]}
       >
