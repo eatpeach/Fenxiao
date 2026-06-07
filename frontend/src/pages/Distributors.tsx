@@ -57,8 +57,8 @@ export default function Distributors() {
       valueType: 'option',
       width: 130,
       render: (_, record) => [
-        <EditDistributor key="edit" record={record} onDone={() => actionRef.current?.reload()} />,
-        <QuoteButton key="quote" dist={record} />,
+        <EditDistributor key={`edit-${record.id}`} record={record} onDone={() => actionRef.current?.reload()} />,
+        <QuoteButton key={`quote-${record.id}`} dist={record} />,
       ],
     },
   ];

@@ -126,7 +126,7 @@ export default function Products() {
     {
       title: '操作', valueType: 'option', width: 110, fixed: 'right',
       render: (_, record) => [
-        <ProductForm key="edit" record={record} onDone={() => actionRef.current?.reload()} />,
+        <ProductForm key={`edit-${record.id}`} record={record} onDone={() => actionRef.current?.reload()} />,
         <Popconfirm key="del" title="确认删除该商品？" onConfirm={() => remove(record.id)}>
           <a style={{ color: 'red' }}>删除</a>
         </Popconfirm>,

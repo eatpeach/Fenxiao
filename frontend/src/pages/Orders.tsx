@@ -60,7 +60,7 @@ export default function Orders() {
       render: (_, r) => {
         const out = Number(r.outstanding ?? r.total_amount - (r.paid_amount || 0));
         return [
-          <PaymentModal key="pay" order={r} onDone={() => actionRef.current?.reload()} />,
+          <PaymentModal key={`pay-${r.id}`} order={r} onDone={() => actionRef.current?.reload()} />,
           <a key="inv" onClick={() => exportInvoice(r.id)}>Invoice</a>,
           out > 0 ? <a key="dun" onClick={() => dunOrder(r, () => actionRef.current?.reload())}>催收</a> : null,
         ];

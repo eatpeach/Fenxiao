@@ -40,7 +40,7 @@ export default function Receivables() {
       title: '操作', valueType: 'option', width: 200, fixed: 'right',
       render: (_, r) => [
         <a key="dun" onClick={() => dunOrder(r, () => actionRef.current?.reload())}>催收</a>,
-        <PaymentModal key="pay" order={r} onDone={() => actionRef.current?.reload()} />,
+        <PaymentModal key={`pay-${r.id}`} order={r} onDone={() => actionRef.current?.reload()} />,
         <a key="inv" onClick={() => exportInvoice(r.id)}>Invoice</a>,
       ],
     },

@@ -39,8 +39,8 @@ export default function Levels() {
       valueType: 'option',
       width: 160,
       render: (_, record) => [
-        <EditLevel key="edit" record={record} onDone={() => actionRef.current?.reload()} />,
-        <CategoryRates key="rates" level={record} />,
+        <EditLevel key={`edit-${record.id}`} record={record} onDone={() => actionRef.current?.reload()} />,
+        <CategoryRates key={`rates-${record.id}`} level={record} />,
       ],
     },
   ];
