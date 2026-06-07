@@ -72,8 +72,14 @@ const urlToFileList = (url?: string) =>
 const fileListToUrl = (v: any): string => {
   if (!v) return '';
   if (typeof v === 'string') return v;
-  const f = Array.isArray(v) ? v[0] : v;
-  return f?.response?.data?.url || f?.url || '';
+  const arr = Array.isArray(v) ? v : (v.fileList || [v]);
+  // 从最新一项往前找，优先上传返回的 data.url，其次已有 url（兼容替换图/事件对象）
+  for (let i = arr.length - 1; i >= 0; i--) {
+    const f = arr[i];
+    const url = f?.response?.data?.url || f?.response?.url || f?.url;
+    if (url) return url;
+  }
+  return '';
 };
 
 export default function Products() {
