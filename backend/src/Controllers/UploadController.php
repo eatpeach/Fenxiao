@@ -20,14 +20,15 @@ class UploadController
             Http::fail('仅支持 jpg/png/gif/webp 图片');
         }
 
-        $dir = __DIR__ . '/../../public/uploads';
+        // 存到 public/img（nginx 已把 /img 当静态资源；/uploads 未配会被前端路由兜底成破图）
+        $dir = __DIR__ . '/../../public/img';
         if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
             Http::fail('上传目录不可写', 500);
         }
-        $name = date('Ymd') . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
+        $name = 'up_' . date('Ymd') . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
         if (!move_uploaded_file($f['tmp_name'], "$dir/$name")) {
-            Http::fail('保存失败，请检查 uploads 目录权限', 500);
+            Http::fail('保存失败，请检查 public/img 目录权限', 500);
         }
-        Http::ok(['url' => '/uploads/' . $name]);
+        Http::ok(['url' => '/img/' . $name]);
     }
 }
