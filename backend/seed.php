@@ -64,11 +64,17 @@ $ins = $db->prepare(
      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
 );
 
+// 幂等：同品名的茶已存在则跳过（避免重复跑产生重复商品）
+$findT = $db->prepare('SELECT COUNT(*) FROM products WHERE category_id = ? AND name = ?');
+
 $count = 0;
 $first = true;
 while (($row = fgetcsv($fh)) !== false) {
     if ($first) { $first = false; continue; } // 跳过表头
-    if (trim((string)($row[3] ?? '')) === '') continue; // 无品名跳过
+    $nm = trim((string)($row[3] ?? ''));
+    if ($nm === '') continue; // 无品名跳过
+    $findT->execute([$teaId, $nm]);
+    if ((int)$findT->fetchColumn() > 0) continue; // 已存在，跳过
     $ins->execute([
         $teaId,
         trim((string)($row[1] ?? '')),   // 产品编码
