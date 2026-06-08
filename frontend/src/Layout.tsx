@@ -29,7 +29,8 @@ export default function Layout() {
   return (
     <ProLayout
       title="茗寳集 分销系统"
-      logo={<img src="/img/logo.png" alt="茗寳集" style={{ height: 28 }} />}
+      logo={<img src="/img/logo.png" alt="" style={{ height: 28 }}
+        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />}
       layout="mix"
       location={{ pathname }}
       route={{

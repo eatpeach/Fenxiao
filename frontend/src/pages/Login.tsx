@@ -39,7 +39,8 @@ export default function Login() {
           </span>
         ))}
         <div className="login-brand">
-          <img src="/img/logo.png" alt="茗寳集" />
+          <img src="/img/logo.png" alt="茗寳集"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
           <div className="login-cn">茗寳集</div>
           <div className="login-en">MING BAO JI</div>
         </div>
