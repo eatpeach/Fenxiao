@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import zhCN from 'antd/locale/zh_CN';
-import { ConfigProvider } from 'antd';
+import { I18nProvider } from './i18n';
 import './index.css';
 import Login from './pages/Login';
 import Layout from './Layout';
@@ -17,6 +16,7 @@ import Payments from './pages/Payments';
 import Receivables from './pages/Receivables';
 import Commissions from './pages/Commissions';
 import Withdrawals from './pages/Withdrawals';
+import Accounts from './pages/Accounts';
 import { getToken } from './api';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -25,7 +25,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ConfigProvider locale={zhCN}>
+    <I18nProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -49,9 +49,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="receivables" element={<Receivables />} />
             <Route path="commissions" element={<Commissions />} />
             <Route path="withdrawals" element={<Withdrawals />} />
+            <Route path="accounts" element={<Accounts />} />
           </Route>
         </Routes>
       </BrowserRouter>
-    </ConfigProvider>
+    </I18nProvider>
   </React.StrictMode>
 );

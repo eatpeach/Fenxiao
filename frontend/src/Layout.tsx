@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { ProLayout } from '@ant-design/pro-components';
-import { Dropdown } from 'antd';
+import { Dropdown, Segmented } from 'antd';
 import {
   DashboardOutlined,
   ShoppingOutlined,
@@ -14,37 +14,50 @@ import {
   WalletOutlined,
   DollarOutlined,
   AlertOutlined,
+  UserSwitchOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
 import { clearToken } from './api';
+import { useI18n } from './i18n';
 
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [pathname, setPathname] = useState(location.pathname);
+  const { t, lang, setLang } = useI18n();
 
   return (
     <ProLayout
       title="茗寳集 分销系统"
-      logo={false}
+      logo={<img src="/img/logo.png" alt="茗寳集" style={{ height: 28 }} />}
       layout="mix"
       location={{ pathname }}
       route={{
         path: '/',
         routes: [
-          { path: '/dashboard', name: '工作台', icon: <DashboardOutlined /> },
-          { path: '/products', name: '商品管理', icon: <ShoppingOutlined /> },
-          { path: '/categories', name: '商品分类', icon: <AppstoreOutlined /> },
-          { path: '/suppliers', name: '供应商', icon: <ShopOutlined /> },
-          { path: '/distributors', name: '分销商', icon: <TeamOutlined /> },
-          { path: '/levels', name: '分销等级', icon: <CrownOutlined /> },
-          { path: '/orders', name: '订单管理', icon: <ProfileOutlined /> },
-          { path: '/payments', name: '收款审核', icon: <DollarOutlined /> },
-          { path: '/receivables', name: '应收催收', icon: <AlertOutlined /> },
-          { path: '/commissions', name: '佣金结算', icon: <AccountBookOutlined /> },
-          { path: '/withdrawals', name: '提现管理', icon: <WalletOutlined /> },
+          { path: '/dashboard', name: t('m_dashboard'), icon: <DashboardOutlined /> },
+          { path: '/products', name: t('m_products'), icon: <ShoppingOutlined /> },
+          { path: '/categories', name: t('m_categories'), icon: <AppstoreOutlined /> },
+          { path: '/suppliers', name: t('m_suppliers'), icon: <ShopOutlined /> },
+          { path: '/distributors', name: t('m_distributors'), icon: <TeamOutlined /> },
+          { path: '/levels', name: t('m_levels'), icon: <CrownOutlined /> },
+          { path: '/orders', name: t('m_orders'), icon: <ProfileOutlined /> },
+          { path: '/payments', name: t('m_payments'), icon: <DollarOutlined /> },
+          { path: '/receivables', name: t('m_receivables'), icon: <AlertOutlined /> },
+          { path: '/commissions', name: t('m_commissions'), icon: <AccountBookOutlined /> },
+          { path: '/withdrawals', name: t('m_withdrawals'), icon: <WalletOutlined /> },
+          { path: '/accounts', name: t('m_accounts'), icon: <UserSwitchOutlined /> },
         ],
       }}
+      actionsRender={() => [
+        <Segmented
+          key="lang"
+          size="small"
+          value={lang}
+          onChange={(v) => setLang(v as any)}
+          options={[{ label: '中', value: 'zh' }, { label: 'ID', value: 'id' }]}
+        />,
+      ]}
       menuItemRender={(item, dom) => (
         <div
           onClick={() => {
@@ -65,7 +78,7 @@ export default function Layout() {
                 {
                   key: 'logout',
                   icon: <LogoutOutlined />,
-                  label: '退出登录',
+                  label: t('logout'),
                   onClick: () => {
                     clearToken();
                     navigate('/login');
