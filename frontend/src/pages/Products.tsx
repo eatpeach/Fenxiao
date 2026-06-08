@@ -66,6 +66,13 @@ const brandOptions = async () => {
   return (res.data || []).map((b: string) => ({ label: b, value: b }));
 };
 
+// 编辑表单里出现的字段（提交时全部带上；不含已移除的 origin/price_per_brew_rp，避免误清空）
+const EDIT_FIELDS = [
+  'name', 'status', 'category_id', 'supplier_id', 'brand', 'product_code', 'barcode',
+  'spec', 'unit', 'qty_per_box', 'box_price_rp', 'cost_price_rp', 'price_taxfree_rp',
+  'bulk_price_rp', 'price_rmb', 'description',
+];
+
 // 图片字段 <-> antd Upload fileList 互转
 const urlToFileList = (url?: string) =>
   url ? [{ uid: '-1', name: '图片', status: 'done', url }] : [];
@@ -184,7 +191,11 @@ function ProductForm({ record, onDone }: { record?: Product; onDone: () => void 
         : <Button type="primary" icon={<PlusOutlined />}>新增商品</Button>}
       initialValues={isEdit ? { ...record, image: urlToFileList(record!.image) } : { status: 1 }}
       onFinish={async (values) => {
-        const payload = { ...values, image: fileListToUrl(values.image) };
+        // 表单里的字段全部带上：清空的发 null（否则 JSON 丢 undefined，后端不更新→保留旧值）；0 等有效值保留
+        const payload: any = { image: fileListToUrl(values.image) };
+        for (const f of EDIT_FIELDS) {
+          payload[f] = values[f] === undefined || values[f] === '' ? null : values[f];
+        }
         const res = isEdit
           ? await api.put(`/api/products/${record!.id}`, payload)
           : await api.post('/api/products', payload);
