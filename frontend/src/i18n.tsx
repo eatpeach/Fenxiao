@@ -26,6 +26,7 @@ const dict: Record<string, [string, string]> = {
   m_categories: ['商品分类', 'Kategori'],
   m_suppliers: ['供应商', 'Pemasok'],
   m_distributors: ['分销商', 'Distributor'],
+  m_opportunities: ['商机管理', 'Peluang'],
   m_levels: ['分销等级', 'Level Distributor'],
   m_orders: ['订单管理', 'Pesanan'],
   m_payments: ['收款审核', 'Verifikasi Pembayaran'],

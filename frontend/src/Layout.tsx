@@ -15,6 +15,7 @@ import {
   DollarOutlined,
   AlertOutlined,
   UserSwitchOutlined,
+  SolutionOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
 import { clearToken } from './api';
@@ -41,6 +42,7 @@ export default function Layout() {
           { path: '/categories', name: t('m_categories'), icon: <AppstoreOutlined /> },
           { path: '/suppliers', name: t('m_suppliers'), icon: <ShopOutlined /> },
           { path: '/distributors', name: t('m_distributors'), icon: <TeamOutlined /> },
+          { path: '/opportunities', name: t('m_opportunities'), icon: <SolutionOutlined /> },
           { path: '/levels', name: t('m_levels'), icon: <CrownOutlined /> },
           { path: '/orders', name: t('m_orders'), icon: <ProfileOutlined /> },
           { path: '/payments', name: t('m_payments'), icon: <DollarOutlined /> },

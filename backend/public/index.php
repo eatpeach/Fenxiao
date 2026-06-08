@@ -22,6 +22,7 @@ use App\Controllers\CommissionController;
 use App\Controllers\PaymentController;
 use App\Controllers\AccountController;
 use App\Controllers\StatsController;
+use App\Controllers\OpportunityController;
 use App\Controllers\WithdrawalController;
 use App\Controllers\UploadController;
 
@@ -83,6 +84,13 @@ $router->post('/api/withdrawals',             fn() => (new WithdrawalController(
 $router->post('/api/withdrawals/{id}/review', fn($p) => (new WithdrawalController())->review($p));
 
 $router->get('/api/stats/dashboard',  fn() => (new StatsController())->dashboard());
+
+$router->get('/api/opportunities',      fn() => (new OpportunityController())->index());
+$router->get('/api/opportunities/{id}', fn($p) => (new OpportunityController())->show($p));
+$router->post('/api/opportunities',     fn() => (new OpportunityController())->store());
+$router->put('/api/opportunities/{id}', fn($p) => (new OpportunityController())->update($p));
+$router->delete('/api/opportunities/{id}', fn($p) => (new OpportunityController())->destroy($p));
+$router->post('/api/opportunities/{id}/follows', fn($p) => (new OpportunityController())->addFollow($p));
 
 $router->get('/api/accounts',        fn() => (new AccountController())->index());
 $router->post('/api/accounts',        fn() => (new AccountController())->store());

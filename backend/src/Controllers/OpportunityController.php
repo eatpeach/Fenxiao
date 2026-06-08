@@ -1,0 +1,115 @@
+<?php
+namespace App\Controllers;
+
+use App\Database;
+use App\Http;
+
+class OpportunityController
+{
+    private array $fields = [
+        'name', 'type', 'contact', 'level_id', 'source', 'stage',
+        'intent', 'amount', 'owner', 'next_follow_at', 'remark',
+    ];
+
+    public function index(): void
+    {
+        Http::requireAuth();
+        $page = max(1, (int)($_GET['current'] ?? 1));
+        $size = min(100, max(1, (int)($_GET['pageSize'] ?? 20)));
+        $where = [];
+        $args = [];
+        if (!empty($_GET['name']))  { $where[] = 'o.name LIKE ?'; $args[] = '%' . $_GET['name'] . '%'; }
+        if (!empty($_GET['type']))  { $where[] = 'o.type = ?';  $args[] = $_GET['type']; }
+        if (!empty($_GET['stage'])) { $where[] = 'o.stage = ?'; $args[] = $_GET['stage']; }
+
+        $sql = 'FROM opportunities o LEFT JOIN distributor_levels l ON l.id = o.level_id';
+        if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
+
+        $total = Database::get()->prepare("SELECT COUNT(*) $sql");
+        $total->execute($args);
+        $totalCount = (int)$total->fetchColumn();
+
+        $offset = ($page - 1) * $size;
+        $stmt = Database::get()->prepare(
+            "SELECT o.*, l.name AS level_name,
+                    (SELECT COUNT(*) FROM opportunity_follows f WHERE f.opportunity_id = o.id) AS follow_count
+             $sql ORDER BY o.id DESC LIMIT $size OFFSET $offset"
+        );
+        $stmt->execute($args);
+        Http::ok($stmt->fetchAll(), ['total' => $totalCount]);
+    }
+
+    public function show(array $p): void
+    {
+        Http::requireAuth();
+        $db = Database::get();
+        $o = $db->prepare(
+            'SELECT o.*, l.name AS level_name FROM opportunities o
+             LEFT JOIN distributor_levels l ON l.id = o.level_id WHERE o.id = ?'
+        );
+        $o->execute([(int)$p['id']]);
+        $opp = $o->fetch();
+        if (!$opp) Http::fail('商机不存在', 404);
+        $f = $db->prepare('SELECT * FROM opportunity_follows WHERE opportunity_id = ? ORDER BY id DESC');
+        $f->execute([(int)$p['id']]);
+        $opp['follows'] = $f->fetchAll();
+        Http::ok($opp);
+    }
+
+    public function store(): void
+    {
+        Http::requireAdmin();
+        $b = Http::body();
+        if (empty($b['name'])) Http::fail('客户名称不能为空');
+        $cols = array_values(array_intersect($this->fields, array_keys($b)));
+        $ph = implode(',', array_fill(0, count($cols), '?'));
+        $stmt = Database::get()->prepare('INSERT INTO opportunities (' . implode(',', $cols) . ") VALUES ($ph)");
+        $stmt->execute(array_map(fn($c) => $b[$c] === '' ? null : $b[$c], $cols));
+        Http::ok(['id' => (int)Database::get()->lastInsertId()]);
+    }
+
+    public function update(array $p): void
+    {
+        Http::requireAdmin();
+        $b = Http::body();
+        $cols = array_values(array_intersect($this->fields, array_keys($b)));
+        if (!$cols) Http::fail('无可更新字段');
+        $set = implode(',', array_map(fn($c) => "$c = ?", $cols));
+        $args = array_map(fn($c) => $b[$c] === '' ? null : $b[$c], $cols);
+        $args[] = (int)$p['id'];
+        $stmt = Database::get()->prepare("UPDATE opportunities SET $set WHERE id = ?");
+        $stmt->execute($args);
+        Http::ok(['updated' => $stmt->rowCount()]);
+    }
+
+    public function destroy(array $p): void
+    {
+        Http::requireAdmin();
+        $stmt = Database::get()->prepare('DELETE FROM opportunities WHERE id = ?');
+        $stmt->execute([(int)$p['id']]);
+        Http::ok(['deleted' => $stmt->rowCount()]);
+    }
+
+    /** 新增跟进记录；可同时带 stage / next_follow_at 一起更新 */
+    public function addFollow(array $p): void
+    {
+        Http::requireAdmin();
+        $b = Http::body();
+        $id = (int)$p['id'];
+        $content = trim($b['content'] ?? '');
+        if ($content === '') Http::fail('跟进内容不能为空');
+        $db = Database::get();
+        $db->prepare('INSERT INTO opportunity_follows (opportunity_id, content) VALUES (?,?)')
+           ->execute([$id, $content]);
+        // 顺带更新阶段/下次跟进
+        $sets = [];
+        $args = [];
+        if (isset($b['stage']) && $b['stage'] !== '')          { $sets[] = 'stage = ?';          $args[] = $b['stage']; }
+        if (array_key_exists('next_follow_at', $b))            { $sets[] = 'next_follow_at = ?'; $args[] = $b['next_follow_at'] ?: null; }
+        if ($sets) {
+            $args[] = $id;
+            $db->prepare('UPDATE opportunities SET ' . implode(',', $sets) . ' WHERE id = ?')->execute($args);
+        }
+        Http::ok(['ok' => 1]);
+    }
+}

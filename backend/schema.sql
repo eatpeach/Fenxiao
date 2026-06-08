@@ -129,6 +129,31 @@ CREATE TABLE IF NOT EXISTS withdrawals (
     created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- 商机/客户跟踪
+CREATE TABLE IF NOT EXISTS opportunities (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    name           TEXT NOT NULL,
+    type           TEXT NOT NULL DEFAULT 'direct',  -- direct直接客户(原价) | distributor分销客户(按分销)
+    contact        TEXT,
+    level_id       INTEGER REFERENCES distributor_levels(id),  -- 分销客户的定价等级
+    source         TEXT,                            -- 来源
+    stage          TEXT NOT NULL DEFAULT 'new',      -- new新建|following跟进中|won已成交|lost已流失
+    intent         TEXT,                            -- 意向商品/需求
+    amount         REAL,                            -- 预估金额
+    owner          TEXT,                            -- 负责人
+    next_follow_at TEXT,                            -- 下次跟进时间
+    remark         TEXT,
+    created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS opportunity_follows (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    opportunity_id INTEGER NOT NULL REFERENCES opportunities(id) ON DELETE CASCADE,
+    content        TEXT NOT NULL,
+    created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
+CREATE INDEX IF NOT EXISTS idx_opp_follows ON opportunity_follows(opportunity_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_commissions_user ON commissions(user_id);

@@ -17,6 +17,7 @@ import Receivables from './pages/Receivables';
 import Commissions from './pages/Commissions';
 import Withdrawals from './pages/Withdrawals';
 import Accounts from './pages/Accounts';
+import Opportunities from './pages/Opportunities';
 import { getToken } from './api';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -44,6 +45,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="levels" element={<Levels />} />
             <Route path="distributors" element={<Distributors />} />
+            <Route path="opportunities" element={<Opportunities />} />
             <Route path="orders" element={<Orders />} />
             <Route path="payments" element={<Payments />} />
             <Route path="receivables" element={<Receivables />} />
