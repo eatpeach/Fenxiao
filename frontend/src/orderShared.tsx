@@ -53,7 +53,7 @@ export async function exportInvoice(orderId: number) {
   @media print{body{padding:12px 16px;} @page{margin:12mm;}}
 </style></head><body>
   <div class="head">
-    <div class="brand"><img class="logo" src="https://os.bantuqifu.com/bantu_logo.png" alt=""><div><div class="cn">斑兔分销</div><div class="en">BANTUQIFU</div></div></div>
+    <div class="brand"><img class="logo" src="${window.location.origin}/img/logo.png" alt=""><div><div class="cn">茗寳集</div><div class="en">MING BAO JI</div></div></div>
     <div class="title"><div class="cn">账单 / INVOICE</div><div class="en">${esc(o.order_no)}</div></div>
   </div>
   <div class="info">
@@ -74,7 +74,7 @@ export async function exportInvoice(orderId: number) {
   </table>
   <div class="notes">
     * 请按上述应付金额付款，付款后请提供转账凭证。<br>
-    * 本账单由斑兔分销出具，最终以签约合同为准。<br>
+    * 本账单由茗寳集出具，最终以签约合同为准。<br>
     价格不含税，税费需客户方承担。中国发票税率 1%（技术服务/咨询费）；印尼发票 PPh23 税率 2%（咨询费）。
   </div>
   <script>window.addEventListener('load',function(){setTimeout(function(){window.print();},300);});</script>

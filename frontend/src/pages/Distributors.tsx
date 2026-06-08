@@ -203,7 +203,7 @@ function QuoteButton({ dist }: { dist: Distributor }) {
 </style></head><body>
   <div class="bar no-print"><button onclick="window.print()">打印 / 保存为 PDF</button></div>
   <div class="head">
-    <div class="brand"><img class="logo" src="https://os.bantuqifu.com/bantu_logo.png" alt=""><div><div class="cn">斑兔分销</div><div class="en">BANTUQIFU</div></div></div>
+    <div class="brand"><img class="logo" src="${window.location.origin}/img/logo.png" alt=""><div><div class="cn">茗寳集</div><div class="en">MING BAO JI</div></div></div>
     <div class="title"><div class="cn">报价单</div><div class="en">QUOTATION</div></div>
   </div>
   <div class="info">
@@ -220,7 +220,7 @@ function QuoteButton({ dist }: { dist: Distributor }) {
   <div class="notes">
     * 价格单位：印尼盾(IDR)<br>
     * 以上报价有效期为 30 天，最终以签约/订单为准<br>
-    * 本报价单由斑兔分销出具<br>
+    * 本报价单由茗寳集出具<br>
     <b>含税价为含税到手价；不含税价不含税费，税费由客户方承担。</b>
   </div>
 </body></html>`;
