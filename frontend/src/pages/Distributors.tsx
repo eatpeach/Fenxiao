@@ -181,6 +181,8 @@ function QuoteButton({ dist }: { dist: Distributor }) {
   * { box-sizing: border-box; }
   body { font-family: "Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif; color:#1a1a1a; margin:0; padding:32px 40px; }
   .head { display:flex; justify-content:space-between; align-items:flex-end; padding-bottom:16px; border-bottom:3px solid #1a1a1a; }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .logo { height:46px; width:auto; }
   .brand .cn { font-size:24px; font-weight:800; letter-spacing:2px; }
   .brand .en { font-size:12px; color:#888; letter-spacing:3px; }
   .title { text-align:right; }
@@ -201,7 +203,7 @@ function QuoteButton({ dist }: { dist: Distributor }) {
 </style></head><body>
   <div class="bar no-print"><button onclick="window.print()">打印 / 保存为 PDF</button></div>
   <div class="head">
-    <div class="brand"><div class="cn">斑兔分销</div><div class="en">BANTUQIFU</div></div>
+    <div class="brand"><img class="logo" src="https://os.bantuqifu.com/bantu_logo.png" alt=""><div><div class="cn">斑兔分销</div><div class="en">BANTUQIFU</div></div></div>
     <div class="title"><div class="cn">报价单</div><div class="en">QUOTATION</div></div>
   </div>
   <div class="info">

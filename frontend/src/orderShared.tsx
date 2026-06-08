@@ -42,6 +42,7 @@ export async function exportInvoice(orderId: number) {
 <style>
   *{box-sizing:border-box;} body{font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif;color:#1a1a1a;margin:0;padding:32px 40px;}
   .head{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:16px;border-bottom:3px solid #1a1a1a;}
+  .brand{display:flex;align-items:center;gap:10px;} .logo{height:46px;width:auto;}
   .brand .cn{font-size:24px;font-weight:800;letter-spacing:2px;} .brand .en{font-size:12px;color:#888;letter-spacing:3px;}
   .title{text-align:right;} .title .cn{font-size:24px;font-weight:800;} .title .en{font-size:12px;color:#888;letter-spacing:3px;}
   .info{display:flex;justify-content:space-between;margin:14px 0;font-size:13px;color:#333;} .info .r{text-align:right;line-height:1.7;}
@@ -52,7 +53,7 @@ export async function exportInvoice(orderId: number) {
   @media print{body{padding:12px 16px;} @page{margin:12mm;}}
 </style></head><body>
   <div class="head">
-    <div class="brand"><div class="cn">斑兔分销</div><div class="en">BANTUQIFU</div></div>
+    <div class="brand"><img class="logo" src="https://os.bantuqifu.com/bantu_logo.png" alt=""><div><div class="cn">斑兔分销</div><div class="en">BANTUQIFU</div></div></div>
     <div class="title"><div class="cn">账单 / INVOICE</div><div class="en">${esc(o.order_no)}</div></div>
   </div>
   <div class="info">
@@ -76,13 +77,13 @@ export async function exportInvoice(orderId: number) {
     * 本账单由斑兔分销出具，最终以签约合同为准。<br>
     价格不含税，税费需客户方承担。中国发票税率 1%（技术服务/咨询费）；印尼发票 PPh23 税率 2%（咨询费）。
   </div>
+  <script>window.addEventListener('load',function(){setTimeout(function(){window.print();},300);});</script>
 </body></html>`;
   const win = window.open('', '_blank', 'width=1000,height=800');
   if (!win) { message.error('请允许浏览器弹出窗口后重试'); return; }
   win.document.write(html);
   win.document.close();
   win.focus();
-  setTimeout(() => win.print(), 350);
 }
 
 // ============ 催收：生成话术 + 复制 + 记录催收时间 ============
