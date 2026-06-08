@@ -25,7 +25,7 @@ export default function Layout() {
 
   return (
     <ProLayout
-      title="分销管理系统"
+      title="茗寳集 分销系统"
       logo={false}
       layout="mix"
       location={{ pathname }}

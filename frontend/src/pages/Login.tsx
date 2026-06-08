@@ -39,7 +39,7 @@ export default function Login() {
         }}
       >
         <LoginForm
-          title="分销管理系统"
+          title="茗寳集 分销系统"
           subTitle="烟 · 酒 · 茶 · 茶具 · 特产 分销平台"
           onFinish={handleSubmit}
           submitter={{ searchConfig: { submitText: '登录' } }}
