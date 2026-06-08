@@ -21,6 +21,7 @@ use App\Controllers\OrderController;
 use App\Controllers\CommissionController;
 use App\Controllers\PaymentController;
 use App\Controllers\AccountController;
+use App\Controllers\StatsController;
 use App\Controllers\WithdrawalController;
 use App\Controllers\UploadController;
 
@@ -80,6 +81,8 @@ $router->post('/api/commissions/{id}/settle', fn($p) => (new CommissionControlle
 $router->get('/api/withdrawals',              fn() => (new WithdrawalController())->index());
 $router->post('/api/withdrawals',             fn() => (new WithdrawalController())->store());
 $router->post('/api/withdrawals/{id}/review', fn($p) => (new WithdrawalController())->review($p));
+
+$router->get('/api/stats/dashboard',  fn() => (new StatsController())->dashboard());
 
 $router->get('/api/accounts',        fn() => (new AccountController())->index());
 $router->post('/api/accounts',        fn() => (new AccountController())->store());

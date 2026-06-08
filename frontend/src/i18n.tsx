@@ -21,7 +21,7 @@ const dict: Record<string, [string, string]> = {
   slogan2: ['全球甄选', 'Pilihan Global'],
   slogan3: ['一件代发', 'Dropship'],
 
-  m_dashboard: ['工作台', 'Dasbor'],
+  m_dashboard: ['仪表盘', 'Dasbor'],
   m_products: ['商品管理', 'Produk'],
   m_categories: ['商品分类', 'Kategori'],
   m_suppliers: ['供应商', 'Pemasok'],
