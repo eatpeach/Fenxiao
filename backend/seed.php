@@ -13,7 +13,7 @@ function num($v): ?float
 }
 
 // 1) 分类（按业务品类）
-$categories = ['烟', '酒', '茶', '茶桌', '茶具', '屏风', '特产'];
+$categories = ['烟', '酒', '茶', '茶桌', '茶具', '特产'];
 $catIds = [];
 $insCat = $db->prepare('INSERT OR IGNORE INTO categories (name, sort) VALUES (?, ?)');
 $getCat = $db->prepare('SELECT id FROM categories WHERE name = ?');
