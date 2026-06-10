@@ -54,5 +54,5 @@ foreach ($rows as $p) {
     ]);
     $cnt++;
 }
-echo "已导入新产品 $cnt 条（茶 17 / 茶桌 68）\n";
+echo "已导入新产品 $cnt 条（茶 25 / 茶桌 68）\n";
 echo "提示：再跑一次  php backend/import_images.php  按条码/编码挂图片\n";
