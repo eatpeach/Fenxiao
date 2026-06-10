@@ -11,7 +11,7 @@ import {
   ProFormDependency,
 } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, Modal, Table, InputNumber, Timeline, Input, Select, DatePicker, Tag, Popconfirm, Empty, message } from 'antd';
+import { Button, Modal, Table, InputNumber, Image, Timeline, Input, Select, DatePicker, Tag, Popconfirm, Empty, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '../api';
 import { exportDoc } from '../docPdf';
@@ -152,36 +152,52 @@ function OppForm({ record, onDone }: { record?: Opp; onDone: () => void }) {
   );
 }
 
-// 报价/开票：选货填量，按客户类型定价，出报价单或 Invoice PDF
+// 报价/开票：选货填量、带商品图，出报价单或 Invoice PDF，并存记录
 function QuoteInvoiceModal({ opp }: { opp: Opp }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [cats, setCats] = useState<string[]>([]);
   const [qty, setQty] = useState<Record<number, number>>({});
+  const [docs, setDocs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const loadDocs = async () => {
+    const res = await api.get(`/api/opportunities/${opp.id}/docs`);
+    setDocs(res.data || []);
+  };
   const load = async () => {
     setOpen(true); setLoading(true); setCats([]); setQty({});
     const res = await api.get(`/api/opportunities/${opp.id}/quote`);
     setItems((res.data?.items || []).map((it: any, idx: number) => ({ ...it, _k: idx })));
     setLoading(false);
+    loadDocs();
   };
   const catOptions = Array.from(new Set(items.map((i) => i.category_name).filter(Boolean))).map((c) => ({ label: c, value: c }));
   const shown = cats.length ? items.filter((i) => cats.includes(i.category_name)) : items;
   const setQ = (k: number, v: number | null) => setQty((m) => ({ ...m, [k]: v || 0 }));
   const chosen = items.filter((i) => (qty[i._k] || 0) > 0 && i.unit_price != null);
   const total = chosen.reduce((s, i) => s + Number(i.unit_price) * (qty[i._k] || 0), 0);
+  const meta = opp.type === 'distributor' ? `分销客户·${opp.level_name || '未设等级'}` : '直接客户·原价';
 
-  const out = (mode: 'quote' | 'invoice') => {
+  const out = async (mode: 'quote' | 'invoice') => {
     if (!chosen.length) { message.warning('请先填写商品数量'); return; }
-    const meta = opp.type === 'distributor' ? `分销客户·${opp.level_name || '未设等级'}` : '直接客户·原价';
-    exportDoc({ mode, customer: opp.name, meta, items: chosen.map((i) => ({ name: i.name, spec: i.spec, qty: qty[i._k], unit: Number(i.unit_price) })) });
+    const docItems = chosen.map((i) => ({ name: i.name, spec: i.spec, qty: qty[i._k], unit: Number(i.unit_price), image: i.image }));
+    exportDoc({ mode, customer: opp.name, meta, items: docItems });
+    await api.post(`/api/opportunities/${opp.id}/docs`, { type: mode, total, items: docItems });
+    message.success(mode === 'invoice' ? '已出 Invoice 并记录' : '已出报价单并记录');
+    loadDocs();
+  };
+
+  const reprint = (d: any) => {
+    let its: any[] = [];
+    try { its = JSON.parse(d.items_json || '[]'); } catch { its = []; }
+    exportDoc({ mode: d.type, customer: opp.name, meta, items: its });
   };
 
   return (
     <>
       <a onClick={load}>报价/开票</a>
-      <Modal title={`报价 / 开票 · ${opp.name}`} open={open} width={820} onCancel={() => setOpen(false)}
+      <Modal title={`报价 / 开票 · ${opp.name}`} open={open} width={860} onCancel={() => setOpen(false)}
         footer={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>合计：<b>Rp {Number(total).toLocaleString()}</b>（{chosen.length} 项）</span>
@@ -199,14 +215,29 @@ function QuoteInvoiceModal({ opp }: { opp: Opp }) {
         </div>
         <Select mode="multiple" allowClear placeholder="按商品分类筛选（不选=全部）"
           style={{ width: '100%', marginBottom: 12 }} value={cats} onChange={setCats} options={catOptions} />
-        <Table dataSource={shown} rowKey="_k" loading={loading} size="small" pagination={false} scroll={{ y: 420 }}
+        <Table dataSource={shown} rowKey="_k" loading={loading} size="small" pagination={false} scroll={{ y: 340 }}
           columns={[
+            { title: '图片', dataIndex: 'image', width: 56,
+              render: (v) => (v ? <Image src={v} width={36} height={36} style={{ objectFit: 'cover', borderRadius: 4 }} /> : '-') },
             { title: '商品名称', dataIndex: 'name' },
             { title: '规格', dataIndex: 'spec', width: 90 },
             { title: '单价(印尼盾)', dataIndex: 'unit_price', width: 120, align: 'right', render: (v) => (v == null ? '-' : Number(v).toLocaleString()) },
-            { title: '数量', width: 110, render: (_, r: any) => <InputNumber min={0} precision={0} style={{ width: '100%' }} value={qty[r._k] || 0} onChange={(v) => setQ(r._k, v)} /> },
-            { title: '小计', width: 130, align: 'right', render: (_, r: any) => (r.unit_price == null ? '-' : Number(Number(r.unit_price) * (qty[r._k] || 0)).toLocaleString()) },
+            { title: '数量', width: 100, render: (_, r: any) => <InputNumber min={0} precision={0} style={{ width: '100%' }} value={qty[r._k] || 0} onChange={(v) => setQ(r._k, v)} /> },
+            { title: '小计', width: 120, align: 'right', render: (_, r: any) => (r.unit_price == null ? '-' : Number(Number(r.unit_price) * (qty[r._k] || 0)).toLocaleString()) },
           ]} />
+
+        <div style={{ marginTop: 16, fontWeight: 600 }}>历史报价/开票记录</div>
+        {docs.length ? (
+          <Table dataSource={docs} rowKey="id" size="small" pagination={false} style={{ marginTop: 8 }}
+            columns={[
+              { title: '时间', dataIndex: 'created_at', width: 160 },
+              { title: '类型', dataIndex: 'type', width: 90,
+                render: (v) => v === 'invoice' ? <Tag color="red">Invoice</Tag> : <Tag color="blue">报价单</Tag> },
+              { title: '项数', width: 70, render: (_, r) => { try { return JSON.parse(r.items_json || '[]').length; } catch { return 0; } } },
+              { title: '合计(Rp)', dataIndex: 'total', align: 'right', render: (v) => Number(v || 0).toLocaleString() },
+              { title: '操作', width: 90, render: (_, r) => <a onClick={() => reprint(r)}>重新打印</a> },
+            ]} />
+        ) : <Empty description="暂无记录" style={{ margin: '8px 0' }} />}
       </Modal>
     </>
   );

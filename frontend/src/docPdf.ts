@@ -2,18 +2,21 @@ const esc = (s: any) =>
   String(s ?? '').replace(/[&<>"]/g, (c) => (({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' } as any)[c]));
 const fmt = (n: any) => Number(n || 0).toLocaleString();
 
-export interface DocItem { name: string; spec?: string; qty: number; unit: number; }
+export interface DocItem { name: string; spec?: string; qty: number; unit: number; image?: string; }
 
 // 生成报价单/账单 PDF（茗寳集品牌，先预览后打印）
 export function exportDoc(o: { mode: 'quote' | 'invoice'; customer: string; meta?: string; items: DocItem[] }) {
   const isInv = o.mode === 'invoice';
   const d = new Date();
   const date = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
-  const logo = window.location.origin + '/img/logo.png';
+  const origin = window.location.origin;
+  const logo = origin + '/img/logo.png';
+  const abs = (u?: string) => (!u ? '' : u.startsWith('http') ? u : origin + u);
   const total = o.items.reduce((s, i) => s + i.unit * i.qty, 0);
   const rows = o.items.map((i, idx) => `
     <tr>
       <td class="c">${idx + 1}</td>
+      <td class="c">${i.image ? `<img class="pic" src="${esc(abs(i.image))}">` : ''}</td>
       <td>${esc(i.name)}</td>
       <td class="c">${esc(i.spec || '')}</td>
       <td class="c">${i.qty}</td>
@@ -36,6 +39,7 @@ export function exportDoc(o: { mode: 'quote' | 'invoice'; customer: string; meta
   table{width:100%;border-collapse:collapse;font-size:13px;} th,td{border:1px solid #d9d9d9;padding:8px 10px;vertical-align:top;}
   thead th{background:#eef0f4;font-weight:700;text-align:center;} td.c{text-align:center;} td.r{text-align:right;}
   tfoot td{font-weight:700;background:#fafafa;}
+  .pic{width:48px;height:48px;object-fit:cover;border-radius:4px;}
   .notes{margin-top:18px;font-size:12px;color:#444;line-height:1.9;border-top:1px solid #eee;padding-top:12px;}
   .bar{position:sticky;top:0;z-index:9;background:#fff;padding:8px 0 12px;text-align:right;border-bottom:1px dashed #ddd;margin-bottom:14px;}
   .bar button{font-size:14px;padding:8px 18px;background:#a8322a;color:#fff;border:none;border-radius:6px;cursor:pointer;}
@@ -52,11 +56,11 @@ export function exportDoc(o: { mode: 'quote' | 'invoice'; customer: string; meta
   </div>
   <table>
     <thead><tr>
-      <th style="width:42px">序号</th><th>商品名称</th><th style="width:90px">规格</th>
-      <th style="width:60px">数量</th><th style="width:130px">单价(印尼盾)</th><th style="width:140px">小计</th>
+      <th style="width:42px">序号</th><th style="width:62px">图片</th><th>商品名称</th><th style="width:80px">规格</th>
+      <th style="width:54px">数量</th><th style="width:120px">单价(印尼盾)</th><th style="width:130px">小计</th>
     </tr></thead>
     <tbody>${rows}</tbody>
-    <tfoot><tr><td colspan="5" class="r">${isInv ? '应付总额' : '合计'}</td><td class="r">${fmt(total)}</td></tr></tfoot>
+    <tfoot><tr><td colspan="6" class="r">${isInv ? '应付总额' : '合计'}</td><td class="r">${fmt(total)}</td></tr></tfoot>
   </table>
   <div class="notes">${footer}</div>
 </body></html>`;

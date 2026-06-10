@@ -135,6 +135,33 @@ class OpportunityController
         Http::ok(['opportunity' => $opp, 'items' => $items, 'is_distributor' => $isDist]);
     }
 
+    /** 保存一条报价/开票记录 */
+    public function saveDoc(array $p): void
+    {
+        Http::requireAdmin();
+        $b = Http::body();
+        $type = ($b['type'] ?? 'quote') === 'invoice' ? 'invoice' : 'quote';
+        $stmt = Database::get()->prepare(
+            'INSERT INTO opportunity_docs (opportunity_id, type, total, items_json) VALUES (?,?,?,?)'
+        );
+        $stmt->execute([
+            (int)$p['id'], $type, (float)($b['total'] ?? 0),
+            json_encode($b['items'] ?? [], JSON_UNESCAPED_UNICODE),
+        ]);
+        Http::ok(['id' => (int)Database::get()->lastInsertId()]);
+    }
+
+    /** 某商机的报价/开票记录列表 */
+    public function docs(array $p): void
+    {
+        Http::requireAuth();
+        $s = Database::get()->prepare(
+            'SELECT * FROM opportunity_docs WHERE opportunity_id = ? ORDER BY id DESC'
+        );
+        $s->execute([(int)$p['id']]);
+        Http::ok($s->fetchAll());
+    }
+
     /** 新增跟进记录；可同时带 stage / next_follow_at 一起更新 */
     public function addFollow(array $p): void
     {

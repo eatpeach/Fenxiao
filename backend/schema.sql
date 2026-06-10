@@ -153,6 +153,16 @@ CREATE TABLE IF NOT EXISTS opportunity_follows (
     created_at     TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- 商机的报价/开票记录
+CREATE TABLE IF NOT EXISTS opportunity_docs (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    opportunity_id INTEGER NOT NULL REFERENCES opportunities(id) ON DELETE CASCADE,
+    type           TEXT NOT NULL DEFAULT 'quote',  -- quote报价单 | invoice账单
+    total          REAL NOT NULL DEFAULT 0,
+    items_json     TEXT,                           -- [{name,spec,qty,unit,image}]
+    created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
 CREATE INDEX IF NOT EXISTS idx_opp_follows ON opportunity_follows(opportunity_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);

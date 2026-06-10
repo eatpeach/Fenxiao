@@ -92,6 +92,8 @@ $router->post('/api/opportunities',     fn() => (new OpportunityController())->s
 $router->put('/api/opportunities/{id}', fn($p) => (new OpportunityController())->update($p));
 $router->delete('/api/opportunities/{id}', fn($p) => (new OpportunityController())->destroy($p));
 $router->get('/api/opportunities/{id}/quote', fn($p) => (new OpportunityController())->quote($p));
+$router->get('/api/opportunities/{id}/docs',  fn($p) => (new OpportunityController())->docs($p));
+$router->post('/api/opportunities/{id}/docs', fn($p) => (new OpportunityController())->saveDoc($p));
 $router->post('/api/opportunities/{id}/follows', fn($p) => (new OpportunityController())->addFollow($p));
 
 $router->get('/api/accounts',        fn() => (new AccountController())->index());
