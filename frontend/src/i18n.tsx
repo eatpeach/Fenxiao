@@ -45,13 +45,26 @@ interface I18nCtx {
 const Ctx = createContext<I18nCtx>(null as any);
 export const useI18n = () => useContext(Ctx);
 
+// 中国风橙红主色（取自茗寳集 logo / 登录页）
+const BRAND = '#a8322a';
+
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>((localStorage.getItem(KEY) as Lang) || 'zh');
   const setLang = (l: Lang) => { localStorage.setItem(KEY, l); setLangState(l); };
   const t = (k: string) => (dict[k] ? dict[k][lang === 'id' ? 1 : 0] : k);
   return (
     <Ctx.Provider value={{ lang, setLang, t }}>
-      <ConfigProvider locale={lang === 'id' ? idID : zhCN}>{children}</ConfigProvider>
+      <ConfigProvider
+        locale={lang === 'id' ? idID : zhCN}
+        theme={{
+          token: { colorPrimary: BRAND, colorInfo: BRAND, colorLink: BRAND, borderRadius: 6 },
+          components: {
+            Menu: { itemSelectedBg: '#f7e9e6', itemSelectedColor: BRAND },
+          },
+        }}
+      >
+        {children}
+      </ConfigProvider>
     </Ctx.Provider>
   );
 }
