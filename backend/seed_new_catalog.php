@@ -49,7 +49,7 @@ foreach ($rows as $p) {
         $p['taxfree'] ?? null,
         $p['bulk'] ?? null,
         $p['cost'] ?? null,
-        '',
+        $p['image'] ?? '',
         $p['desc'] ?? '',
     ]);
     $cnt++;
