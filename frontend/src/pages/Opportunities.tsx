@@ -11,9 +11,10 @@ import {
   ProFormDependency,
 } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, Modal, Timeline, Input, Select, DatePicker, Tag, Popconfirm, Empty, message } from 'antd';
+import { Button, Modal, Table, InputNumber, Timeline, Input, Select, DatePicker, Tag, Popconfirm, Empty, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '../api';
+import { exportDoc } from '../docPdf';
 
 interface Opp {
   id: number;
@@ -76,8 +77,9 @@ export default function Opportunities() {
     { title: '负责人', dataIndex: 'owner', search: false },
     { title: '下次跟进', dataIndex: 'next_follow_at', search: false, render: (_, r) => r.next_follow_at || '-' },
     {
-      title: '操作', valueType: 'option', width: 170,
+      title: '操作', valueType: 'option', width: 230,
       render: (_, record) => [
+        <QuoteInvoiceModal key="quote" opp={record} />,
         <FollowModal key="follow" opp={record} onDone={() => actionRef.current?.reload()} />,
         <OppForm key="edit" record={record} onDone={() => actionRef.current?.reload()} />,
         <Popconfirm key="del" title="确认删除该商机？" onConfirm={() => remove(record.id)}>
@@ -147,6 +149,66 @@ function OppForm({ record, onDone }: { record?: Opp; onDone: () => void }) {
       <ProFormText name="intent" label="意向商品/需求" colProps={{ span: 24 }} />
       <ProFormTextArea name="remark" label="备注" colProps={{ span: 24 }} />
     </ModalForm>
+  );
+}
+
+// 报价/开票：选货填量，按客户类型定价，出报价单或 Invoice PDF
+function QuoteInvoiceModal({ opp }: { opp: Opp }) {
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<any[]>([]);
+  const [cats, setCats] = useState<string[]>([]);
+  const [qty, setQty] = useState<Record<number, number>>({});
+  const [loading, setLoading] = useState(false);
+
+  const load = async () => {
+    setOpen(true); setLoading(true); setCats([]); setQty({});
+    const res = await api.get(`/api/opportunities/${opp.id}/quote`);
+    setItems((res.data?.items || []).map((it: any, idx: number) => ({ ...it, _k: idx })));
+    setLoading(false);
+  };
+  const catOptions = Array.from(new Set(items.map((i) => i.category_name).filter(Boolean))).map((c) => ({ label: c, value: c }));
+  const shown = cats.length ? items.filter((i) => cats.includes(i.category_name)) : items;
+  const setQ = (k: number, v: number | null) => setQty((m) => ({ ...m, [k]: v || 0 }));
+  const chosen = items.filter((i) => (qty[i._k] || 0) > 0 && i.unit_price != null);
+  const total = chosen.reduce((s, i) => s + Number(i.unit_price) * (qty[i._k] || 0), 0);
+
+  const out = (mode: 'quote' | 'invoice') => {
+    if (!chosen.length) { message.warning('请先填写商品数量'); return; }
+    const meta = opp.type === 'distributor' ? `分销客户·${opp.level_name || '未设等级'}` : '直接客户·原价';
+    exportDoc({ mode, customer: opp.name, meta, items: chosen.map((i) => ({ name: i.name, spec: i.spec, qty: qty[i._k], unit: Number(i.unit_price) })) });
+  };
+
+  return (
+    <>
+      <a onClick={load}>报价/开票</a>
+      <Modal title={`报价 / 开票 · ${opp.name}`} open={open} width={820} onCancel={() => setOpen(false)}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>合计：<b>Rp {Number(total).toLocaleString()}</b>（{chosen.length} 项）</span>
+            <span>
+              <Button onClick={() => setOpen(false)}>关闭</Button>
+              <Button onClick={() => out('quote')} disabled={!chosen.length} style={{ marginLeft: 8 }}>出报价单</Button>
+              <Button type="primary" onClick={() => out('invoice')} disabled={!chosen.length} style={{ marginLeft: 8 }}>出 Invoice</Button>
+            </span>
+          </div>
+        }>
+        <div style={{ marginBottom: 10, color: '#666' }}>
+          {opp.type === 'distributor'
+            ? <>定价：<Tag color="gold">分销客户</Tag> 按等级 <b>{opp.level_name || '（未设等级）'}</b> 拿货价</>
+            : <>定价：<Tag color="geekblue">直接客户</Tag> 原价</>}
+        </div>
+        <Select mode="multiple" allowClear placeholder="按商品分类筛选（不选=全部）"
+          style={{ width: '100%', marginBottom: 12 }} value={cats} onChange={setCats} options={catOptions} />
+        <Table dataSource={shown} rowKey="_k" loading={loading} size="small" pagination={false} scroll={{ y: 420 }}
+          columns={[
+            { title: '商品名称', dataIndex: 'name' },
+            { title: '规格', dataIndex: 'spec', width: 90 },
+            { title: '单价(印尼盾)', dataIndex: 'unit_price', width: 120, align: 'right', render: (v) => (v == null ? '-' : Number(v).toLocaleString()) },
+            { title: '数量', width: 110, render: (_, r: any) => <InputNumber min={0} precision={0} style={{ width: '100%' }} value={qty[r._k] || 0} onChange={(v) => setQ(r._k, v)} /> },
+            { title: '小计', width: 130, align: 'right', render: (_, r: any) => (r.unit_price == null ? '-' : Number(Number(r.unit_price) * (qty[r._k] || 0)).toLocaleString()) },
+          ]} />
+      </Modal>
+    </>
   );
 }
 

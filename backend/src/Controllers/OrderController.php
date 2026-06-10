@@ -64,6 +64,26 @@ class OrderController
         Http::ok($order);
     }
 
+    /** 删除订单（连带明细/收款/佣金） */
+    public function destroy(array $p): void
+    {
+        Http::requireAdmin();
+        $db = Database::get();
+        $id = (int)$p['id'];
+        $db->beginTransaction();
+        try {
+            $db->prepare('DELETE FROM order_items WHERE order_id = ?')->execute([$id]);
+            $db->prepare('DELETE FROM payments WHERE order_id = ?')->execute([$id]);
+            $db->prepare('DELETE FROM commissions WHERE order_id = ?')->execute([$id]);
+            $db->prepare('DELETE FROM orders WHERE id = ?')->execute([$id]);
+            $db->commit();
+            Http::ok(['deleted' => 1]);
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            Http::fail('删除失败: ' . $e->getMessage(), 500);
+        }
+    }
+
     /** 记录催收时间 */
     public function dun(array $p): void
     {

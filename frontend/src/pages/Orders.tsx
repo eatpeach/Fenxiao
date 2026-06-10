@@ -9,10 +9,10 @@ import {
   ProFormDigit,
 } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, message, Tag } from 'antd';
+import { Button, Popconfirm, message, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '../api';
-import { PaymentModal, PayStatusTag, exportInvoice, dunOrder, money } from '../orderShared';
+import { PaymentModal, PayStatusTag, dunOrder, money } from '../orderShared';
 
 interface Order {
   id: number;
@@ -44,6 +44,12 @@ const productOptions = async () => {
 export default function Orders() {
   const actionRef = useRef<ActionType>();
 
+  const remove = async (id: number) => {
+    const res = await api.del(`/api/orders/${id}`);
+    if (res.success) { message.success('已删除'); actionRef.current?.reload(); }
+    else message.error(res.errorMessage || '失败');
+  };
+
   const columns: ProColumns<Order>[] = [
     { title: '订单号', dataIndex: 'order_no', width: 180 },
     { title: '分销商', dataIndex: 'user_name' },
@@ -61,8 +67,10 @@ export default function Orders() {
         const out = Number(r.outstanding ?? r.total_amount - (r.paid_amount || 0));
         return [
           <PaymentModal key={`pay-${r.id}`} order={r} onDone={() => actionRef.current?.reload()} />,
-          <a key="inv" onClick={() => exportInvoice(r.id)}>Invoice</a>,
           out > 0 ? <a key="dun" onClick={() => dunOrder(r, () => actionRef.current?.reload())}>催收</a> : null,
+          <Popconfirm key="del" title="确认删除该订单？明细/收款/佣金一并清除" onConfirm={() => remove(r.id)}>
+            <a style={{ color: 'red' }}>删除</a>
+          </Popconfirm>,
         ];
       },
     },

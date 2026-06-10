@@ -69,6 +69,7 @@ $router->put('/api/distributors/{id}', fn($p) => (new DistributorController())->
 $router->get('/api/orders',      fn() => (new OrderController())->index());
 $router->get('/api/orders/{id}', fn($p) => (new OrderController())->show($p));
 $router->post('/api/orders',     fn() => (new OrderController())->store());
+$router->delete('/api/orders/{id}',   fn($p) => (new OrderController())->destroy($p));
 $router->post('/api/orders/{id}/dun', fn($p) => (new OrderController())->dun($p));
 
 $router->get('/api/payments',              fn() => (new PaymentController())->index());
@@ -90,6 +91,7 @@ $router->get('/api/opportunities/{id}', fn($p) => (new OpportunityController())-
 $router->post('/api/opportunities',     fn() => (new OpportunityController())->store());
 $router->put('/api/opportunities/{id}', fn($p) => (new OpportunityController())->update($p));
 $router->delete('/api/opportunities/{id}', fn($p) => (new OpportunityController())->destroy($p));
+$router->get('/api/opportunities/{id}/quote', fn($p) => (new OpportunityController())->quote($p));
 $router->post('/api/opportunities/{id}/follows', fn($p) => (new OpportunityController())->addFollow($p));
 
 $router->get('/api/accounts',        fn() => (new AccountController())->index());

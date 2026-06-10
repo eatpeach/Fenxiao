@@ -90,6 +90,51 @@ class OpportunityController
         Http::ok(['deleted' => $stmt->rowCount()]);
     }
 
+    /** 报价/开票取价：直接客户用原价(含税)，分销客户用其等级该分类拿货价 */
+    public function quote(array $p): void
+    {
+        Http::requireAuth();
+        $db = Database::get();
+        $o = $db->prepare(
+            'SELECT o.*, l.name AS level_name FROM opportunities o
+             LEFT JOIN distributor_levels l ON l.id = o.level_id WHERE o.id = ?'
+        );
+        $o->execute([(int)$p['id']]);
+        $opp = $o->fetch();
+        if (!$opp) Http::fail('商机不存在', 404);
+
+        $isDist  = ($opp['type'] ?? 'direct') === 'distributor';
+        $levelId = (int)($opp['level_id'] ?? 0);
+        $defDisc = 0.0;
+        $catDisc = [];
+        if ($isDist && $levelId) {
+            $defDisc = (float)$db->query("SELECT discount_rate FROM distributor_levels WHERE id = $levelId")->fetchColumn();
+            $r = $db->prepare('SELECT category_id, discount_rate FROM level_category_rates WHERE level_id = ?');
+            $r->execute([$levelId]);
+            foreach ($r as $row) $catDisc[(int)$row['category_id']] = (float)$row['discount_rate'];
+        }
+
+        $prods = $db->query(
+            "SELECT p.name, p.spec, p.image, p.category_id, c.name AS category_name, p.box_price_rp, p.price_taxfree_rp
+             FROM products p LEFT JOIN categories c ON c.id = p.category_id
+             WHERE p.status = 1 ORDER BY c.sort, c.id, p.id"
+        )->fetchAll();
+
+        $items = [];
+        foreach ($prods as $pr) {
+            $retail = $pr['box_price_rp'] !== null ? (float)$pr['box_price_rp']
+                    : ($pr['price_taxfree_rp'] !== null ? (float)$pr['price_taxfree_rp'] : null);
+            if ($retail === null)      $unit = null;
+            elseif ($isDist) { $disc = $catDisc[(int)$pr['category_id']] ?? $defDisc; $unit = $disc > 0 ? round($retail * $disc) : $retail; }
+            else                        $unit = $retail; // 直接客户：原价
+            $items[] = [
+                'name' => $pr['name'], 'spec' => $pr['spec'], 'image' => $pr['image'],
+                'category_name' => $pr['category_name'], 'unit_price' => $unit,
+            ];
+        }
+        Http::ok(['opportunity' => $opp, 'items' => $items, 'is_distributor' => $isDist]);
+    }
+
     /** 新增跟进记录；可同时带 stage / next_follow_at 一起更新 */
     public function addFollow(array $p): void
     {
